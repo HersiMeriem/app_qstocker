@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "1015343581305",
+    "firebase_url": "https://qstocker-9b450-default-rtdb.firebaseio.com",
+    "project_id": "qstocker-9b450",
+    "storage_bucket": "qstocker-9b450.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1015343581305:android:eadb2f001d7240f65faca8",
+        "android_client_info": {
+          "package_name": "com.example.app_qstocker"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1015343581305-k30abclb253r5l348nsmc2t1e326k03r.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBH34169zrMPgPVscRfwSy1ACDXXJFSjog"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1015343581305-k30abclb253r5l348nsmc2t1e326k03r.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "1015343581305-44flq6030vm37e97ukf9b4nurch2dlbm.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.appqstocker"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
