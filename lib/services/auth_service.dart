@@ -15,36 +15,48 @@ class AuthService {
   Stream<User?> get user => _auth.authStateChanges();
   User? get currentUser => _auth.currentUser;
 
-  Future<User?> signInWithEmailAndPassword(String email, String password) async {
-    try {
-      UserCredential userCredential = await _auth.signInWithEmailAndPassword(
-        email: email,
-        password: password,
+//login 
+
+Future<User?> signInWithEmailAndPassword(String email, String password) async {
+  try {
+    UserCredential userCredential = await _auth.signInWithEmailAndPassword(
+      email: email,
+      password: password,
+    );
+
+    if (userCredential.user == null) {
+      throw FirebaseAuthException(
+        code: 'user-not-found',
+        message: 'Aucun utilisateur trouvé avec ces identifiants',
       );
-
-      if (userCredential.user == null) {
-        throw FirebaseAuthException(
-          code: 'user-not-found',
-          message: 'Aucun utilisateur trouvé avec ces identifiants',
-        );
-      }
-
-      final role = await _getUserRole(userCredential.user!.uid);
-      if (role != 'client') {
-        await signOut();
-        throw FirebaseAuthException(
-          code: 'permission-denied',
-          message: 'Seuls les clients peuvent se connecter via cette application',
-        );
-      }
-
-      await _updateLastLogin(userCredential.user!.uid);
-      return userCredential.user;
-    } on FirebaseAuthException catch (e) {
-      _logError('Erreur de connexion', e);
-      rethrow;
     }
+
+    final role = await _getUserRole(userCredential.user!.uid);
+    if (role != 'client') {
+      await signOut();
+      throw FirebaseAuthException(
+        code: 'permission-denied',
+        message: 'Seuls les clients peuvent se connecter via cette application',
+      );
+    }
+
+    await _updateLastLogin(userCredential.user!.uid);
+    return userCredential.user;
+  } on FirebaseAuthException catch (e) {
+    if (e.code == 'user-not-found' || e.code == 'wrong-password' || e.code == 'invalid-credential') {
+      throw FirebaseAuthException(
+        code: e.code,
+        message: 'Email ou mot de passe incorrect',
+      );
+    }
+    _logError('Erreur de connexion', e);
+    rethrow;
   }
+}
+
+
+
+ //register 
 
   Future<User?> registerWithEmailAndPassword({
     required String email,
@@ -173,6 +185,9 @@ class AuthService {
       rethrow;
     }
   }
+
+
+//deconnexion 
 
   Future<void> signOut() async {
     try {

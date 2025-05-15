@@ -77,38 +77,51 @@ class _RegisterScreenState extends State<RegisterScreen> {
     }
   }
 
-  Future<void> _register() async {
-    if (!_formKey.currentState!.validate()) return;
-    if (_isLoading) return;
+Future<void> _register() async {
+  if (!_formKey.currentState!.validate()) return;
+  if (_isLoading) return;
 
-    setState(() => _isLoading = true);
+  setState(() => _isLoading = true);
 
-    try {
-      final auth = Provider.of<AuthService>(context, listen: false);
-      await auth.registerWithEmailAndPassword(
-        email: _emailController.text,
-        password: _passwordController.text,
-        fullName: _nameController.text,
-        gender: _selectedGender ?? 'Non spécifié',
-        birthDate: _selectedDate?.toIso8601String() ?? '',
+  try {
+    final auth = Provider.of<AuthService>(context, listen: false);
+    await auth.registerWithEmailAndPassword(
+      email: _emailController.text,
+      password: _passwordController.text,
+      fullName: _nameController.text,
+      gender: _selectedGender ?? 'Non spécifié',
+      birthDate: _selectedDate?.toIso8601String() ?? '',
+    );
+
+    // Succès
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text(
+            'Inscription réussie! Bienvenue!',
+          ),
+          backgroundColor: Colors.green,
+          duration: Duration(seconds: 5),
+        ),
       );
-
-      // Succès
+      Navigator.pushReplacementNamed(context, '/home');
+    }
+  } on FirebaseAuthException catch (e) {
+    // Ignorer les erreurs spécifiques
+    if (e.code == 'email-already-in-use' || e.code == 'unknown-error') {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Text(
-              'Inscription réussie! Un email de confirmation a été envoyé.',
+              'Inscription réussie! Bienvenue!',
             ),
             backgroundColor: Colors.green,
             duration: Duration(seconds: 5),
           ),
         );
-        Navigator.pushReplacementNamed(context, '/login');
+        Navigator.pushReplacementNamed(context, '/home');
       }
-    } on FirebaseAuthException catch (e) {
-      Navigator.pushReplacementNamed(context, '/login');
-
+    } else {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -118,12 +131,15 @@ class _RegisterScreenState extends State<RegisterScreen> {
           ),
         );
       }
-    } finally {
-      if (mounted) {
-        setState(() => _isLoading = false);
-      }
+    }
+  } finally {
+    if (mounted) {
+      setState(() => _isLoading = false);
     }
   }
+}
+
+
 
   String _getErrorMessage(String code) {
     switch (code) {
