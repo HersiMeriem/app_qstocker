@@ -31,7 +31,7 @@ void main() async {
         providers: [
           Provider<AuthService>(create: (_) => AuthService()),
           ChangeNotifierProvider(create: (_) => CartService()),
-          Provider(create: (_) => ProductService()), // Suppression du paramètre baseUrl
+          Provider(create: (_) => ProductService()), 
         ],
         child: const MyApp(),
       ),

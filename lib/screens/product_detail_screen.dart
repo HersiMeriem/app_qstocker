@@ -1,3 +1,4 @@
+// product_detail_screen.dart
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../models/product.dart';
@@ -18,6 +19,7 @@ class ProductDetailScreen extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: Text(product.name),
+        elevation: 0,
       ),
       body: SingleChildScrollView(
         child: Column(
@@ -139,6 +141,9 @@ class ProductDetailScreen extends StatelessWidget {
           child: ElevatedButton(
             style: ElevatedButton.styleFrom(
               padding: const EdgeInsets.symmetric(vertical: 16),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
             ),
             onPressed: product.status != 'out-of-stock'
                 ? () {

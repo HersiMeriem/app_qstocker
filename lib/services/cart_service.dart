@@ -13,13 +13,13 @@ class CartService with ChangeNotifier {
 
   void addToCart(Product product) {
     final index = _items.indexWhere((item) => item.product.id == product.id);
-    
+
     if (index >= 0) {
       _items[index].quantity++;
     } else {
       _items.add(CartItem(product: product));
     }
-    
+
     notifyListeners();
   }
 
@@ -30,14 +30,14 @@ class CartService with ChangeNotifier {
 
   void updateQuantity(String productId, int newQuantity) {
     final index = _items.indexWhere((item) => item.product.id == productId);
-    
+
     if (index >= 0) {
       if (newQuantity > 0) {
         _items[index].quantity = newQuantity;
       } else {
         _items.removeAt(index);
       }
-      
+
       notifyListeners();
     }
   }

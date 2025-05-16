@@ -24,134 +24,161 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
     final authService = Provider.of<AuthService>(context);
 
     return Scaffold(
-      backgroundColor: const Color(0xFFf8fcff),
+      backgroundColor: const Color(0xFFF6FAFD),
       body: SafeArea(
         child: SingleChildScrollView(
-          padding: const EdgeInsets.all(24.0),
+          padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 16),
           child: Form(
             key: _formKey,
             child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const SizedBox(height: 30),
-                Image.asset(
-                  'images/qstocker.png',
-                  height: 80,
-                ),
-                const SizedBox(height: 15),
-                RichText(
-                  text: const TextSpan(
-                    children: [
-                      TextSpan(
-                        text: 'Q',
-                        style: TextStyle(
-                          fontSize: 22,
-                          fontWeight: FontWeight.bold,
-                          color: Color(0xFF1e4868),
-                        ),
-                      ),
-                      TextSpan(
-                        text: 'Stocker',
-                        style: TextStyle(
-                          fontSize: 22,
-                          fontWeight: FontWeight.bold,
-                          color: Color(0xFF548cb8),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 10),
-                const Text(
-                  'Mot de passe oublié',
-                  style: TextStyle(
-                    fontSize: 22,
-                    fontWeight: FontWeight.bold,
-                    color: Color(0xFF548CB8),
-                  ),
-                ),
-                const SizedBox(height: 30),
-                TextFormField(
-                  controller: _emailController,
-                  decoration: InputDecoration(
-                    labelText: 'Email',
-                    labelStyle: const TextStyle(
-                      color: Color(0xFF4B5D67),
-                      fontSize: 14,
+                // Ligne avec flèche + logo + QStocker
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    IconButton(
+                      icon: const Icon(Icons.arrow_back, color: Color(0xFF1E4868)),
+                      onPressed: () => Navigator.pop(context),
                     ),
-                    prefixIcon: const Icon(Icons.email, color: Color(0xFF4B5D67)),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
+                    const SizedBox(width: 4),
+                    Image.asset(
+                      'images/qstocker.png',
+                      height: 28,
                     ),
-                    enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: const BorderSide(color: Color(0xFF548CB8)),
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: const BorderSide(
-                          color: Color(0xFFC1A36D), width: 2),
-                    ),
-                    filled: true,
-                    fillColor: Colors.white,
-                  ),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Veuillez entrer votre email';
-                    }
-                    if (!value.contains('@')) {
-                      return 'Email invalide';
-                    }
-                    return null;
-                  },
-                ),
-                const SizedBox(height: 25),
-                Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 8.0),
-                  child: SizedBox(
-                    width: double.infinity,
-                    height: 56,
-                    child: ElevatedButton(
-                      onPressed: () async {
-                        if (_formKey.currentState!.validate()) {
-                          await authService.resetPassword(_emailController.text);
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text('Email de réinitialisation envoyé'),
+                    const SizedBox(width: 8),
+                    RichText(
+                      text: const TextSpan(
+                        children: [
+                          TextSpan(
+                            text: 'Q',
+                            style: TextStyle(
+                              fontSize: 20,
+                              fontWeight: FontWeight.bold,
+                              color: Color(0xFF1E4868),
                             ),
-                          );
-                          Navigator.pop(context);
-                        }
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFF1e4868),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        padding: const EdgeInsets.symmetric(vertical: 16),
-                      ),
-                      child: const FittedBox(
-                        child: Text(
-                          'Réinitialiser le mot de passe',
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.white,
                           ),
-                        ),
+                          TextSpan(
+                            text: 'Stocker',
+                            style: TextStyle(
+                              fontSize: 20,
+                              fontWeight: FontWeight.bold,
+                              color: Color(0xFF548CB8),
+                            ),
+                          ),
+                        ],
                       ),
                     ),
+                  ],
+                ),
+                const SizedBox(height: 40),
+
+                // Titre
+                const Center(
+                  child: Text(
+                    'Réinitialiser le mot de passe',
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                      color: Color(0xFF548CB8),
+                    ),
+                    textAlign: TextAlign.center,
                   ),
                 ),
-                TextButton(
-                  onPressed: () {
-                    Navigator.pop(context);
-                  },
-                  child: const Text(
-                    'Retour à la connexion',
+                const SizedBox(height: 12),
+
+                // Texte d'instruction
+                const Center(
+                  child: Text(
+                    'Entrez votre email pour recevoir un lien de\nréinitialisation',
                     style: TextStyle(
-                      color: Color(0xFF548CB8),
-                      fontWeight: FontWeight.w500,
                       fontSize: 14,
+                      color: Colors.black54,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                ),
+                const SizedBox(height: 30),
+
+                // Champ Email
+                Container(
+                  decoration: BoxDecoration(
+                    border: Border.all(color: const Color(0xFF548CB8)),
+                    borderRadius: BorderRadius.circular(12),
+                    color: Colors.white,
+                  ),
+                  child: TextFormField(
+                    controller: _emailController,
+                    keyboardType: TextInputType.emailAddress,
+                    decoration: const InputDecoration(
+                      prefixIcon: Icon(Icons.email, color: Color(0xFF4B5D67)),
+                      hintText: 'Email',
+                      border: InputBorder.none,
+                      contentPadding: EdgeInsets.symmetric(vertical: 18),
+                    ),
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Veuillez entrer votre email';
+                      }
+                      if (!value.contains('@')) {
+                        return 'Email invalide';
+                      }
+                      return null;
+                    },
+                  ),
+                ),
+                const SizedBox(height: 30),
+
+                // Bouton Envoyer le lien
+          SizedBox(
+  width: double.infinity,
+  height: 50,
+  child: ElevatedButton(
+    onPressed: () async {
+      if (_formKey.currentState!.validate()) {
+        await authService.resetPassword(_emailController.text);
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Email de réinitialisation envoyé'),
+          ),
+        );
+        Navigator.pop(context);
+      }
+    },
+    style: ElevatedButton.styleFrom(
+      backgroundColor: const Color(0xFF548CB8),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+      ),
+      padding: const EdgeInsets.symmetric(vertical: 14),
+      elevation: 3,
+    ),
+    child: const FittedBox(
+      fit: BoxFit.scaleDown,
+      child: Text(
+        'Envoyer le lien',
+        style: TextStyle(
+          fontWeight: FontWeight.bold,
+          fontSize: 16,
+          color: Colors.white,
+        ),
+      ),
+    ),
+  ),
+),
+
+                const SizedBox(height: 20),
+
+                // Retour à la connexion
+                Center(
+                  child: TextButton(
+                    onPressed: () => Navigator.pop(context),
+                    child: const Text(
+                      'Retour à la connexion',
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: Color(0xFF548CB8),
+                      ),
                     ),
                   ),
                 ),

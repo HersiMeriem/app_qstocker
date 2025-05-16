@@ -1,3 +1,4 @@
+// products_screen.dart
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../models/product.dart';
@@ -119,6 +120,13 @@ class _ProductsScreenState extends State<ProductsScreen> {
           ),
         ],
       ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          // Action pour ajouter un nouveau produit
+        },
+        child: const Icon(Icons.add),
+        backgroundColor: Theme.of(context).primaryColor,
+      ),
       body: RefreshIndicator(
         onRefresh: _refreshProducts,
         child: Column(
@@ -131,7 +139,7 @@ class _ProductsScreenState extends State<ProductsScreen> {
               ),
             Expanded(
               child: _isLoading
-                  ? const Center(child: CircularProgressIndicator())
+                  ? _buildShimmerLoader()
                   : _filteredProducts.isEmpty
                       ? Center(
                           child: Column(
@@ -192,6 +200,74 @@ class _ProductsScreenState extends State<ProductsScreen> {
           ],
         ),
       ),
+    );
+  }
+
+  Widget _buildShimmerLoader() {
+    return GridView.builder(
+      padding: const EdgeInsets.all(8.0),
+      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: 2,
+        childAspectRatio: 0.7,
+        crossAxisSpacing: 8.0,
+        mainAxisSpacing: 8.0,
+      ),
+      itemCount: 6,
+      itemBuilder: (context, index) {
+        return Card(
+          elevation: 3,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Expanded(
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: Colors.grey[300],
+                    borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
+                  ),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.all(10),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Container(
+                      width: double.infinity,
+                      height: 16,
+                      color: Colors.grey[300],
+                    ),
+                    const SizedBox(height: 8),
+                    Container(
+                      width: 100,
+                      height: 12,
+                      color: Colors.grey[300],
+                    ),
+                    const SizedBox(height: 16),
+                    Container(
+                      width: 80,
+                      height: 14,
+                      color: Colors.grey[300],
+                    ),
+                    const SizedBox(height: 16),
+                    Container(
+                      width: double.infinity,
+                      height: 36,
+                      decoration: BoxDecoration(
+                        color: Colors.grey[300],
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        );
+      },
     );
   }
 }

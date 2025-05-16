@@ -1,3 +1,4 @@
+// order_confirmation_screen.dart
 import 'package:flutter/material.dart';
 
 class OrderConfirmationScreen extends StatelessWidget {
@@ -10,6 +11,7 @@ class OrderConfirmationScreen extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Confirmation de commande'),
+        elevation: 0,
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -49,6 +51,12 @@ class OrderConfirmationScreen extends StatelessWidget {
             ),
             const SizedBox(height: 32),
             ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                padding: const EdgeInsets.symmetric(vertical: 16),
+              ),
               onPressed: () {
                 Navigator.popUntil(context, (route) => route.isFirst);
               },

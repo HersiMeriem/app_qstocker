@@ -11,6 +11,7 @@ class Order {
   final DateTime orderDate;
   final String status;
   final String paymentMethod;
+  final String userId; // Ajouté
 
   Order({
     required this.id,
@@ -23,5 +24,6 @@ class Order {
     required this.orderDate,
     this.status = 'pending',
     this.paymentMethod = 'on_delivery',
+    required this.userId, // Ajouté
   });
 }

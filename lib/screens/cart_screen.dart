@@ -1,8 +1,8 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../services/cart_service.dart';
 import 'checkout_screen.dart';
-
 
 class CartScreen extends StatelessWidget {
   const CartScreen({Key? key}) : super(key: key);
@@ -47,12 +47,7 @@ class CartScreen extends StatelessWidget {
                             child: Row(
                               children: [
                                 item.product.imageUrl != null
-                                    ? Image.network(
-                                        item.product.imageUrl!,
-                                        width: 60,
-                                        height: 60,
-                                        fit: BoxFit.cover,
-                                      )
+                                    ? _buildImage(item.product.imageUrl!)
                                     : Container(
                                         width: 60,
                                         height: 60,
@@ -151,5 +146,41 @@ class CartScreen extends StatelessWidget {
         ],
       ),
     );
+  }
+
+  Widget _buildImage(String imageUrl) {
+    if (imageUrl.startsWith('data:image/')) {
+      try {
+        final base64Data = imageUrl.split(',').last;
+        return Image.memory(
+          base64Decode(base64Data),
+          width: 60,
+          height: 60,
+          fit: BoxFit.cover,
+        );
+      } catch (e) {
+        return Container(
+          width: 60,
+          height: 60,
+          color: Colors.grey[200],
+          child: const Icon(Icons.broken_image),
+        );
+      }
+    } else {
+      return Image.network(
+        imageUrl,
+        width: 60,
+        height: 60,
+        fit: BoxFit.cover,
+        errorBuilder: (context, error, stackTrace) {
+          return Container(
+            width: 60,
+            height: 60,
+            color: Colors.grey[200],
+            child: const Icon(Icons.image),
+          );
+        },
+      );
+    }
   }
 }
