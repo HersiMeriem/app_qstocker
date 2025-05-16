@@ -1,4 +1,5 @@
 import 'package:app_qstocker/screens/history_screen.dart';
+import 'package:app_qstocker/services/product_service.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -83,29 +84,28 @@ class HomeScreen extends StatelessWidget {
               children: [
                 Image.asset('images/qstocker.png', height: 30),
                 const SizedBox(width: 8),
-              const Text.rich(
-  TextSpan(
-    children: [
-      TextSpan(
-        text: 'Q',
-        style: TextStyle(
-          fontSize: 22,
-          fontWeight: FontWeight.bold,
-          color: Color(0xFF1e4868),
-        ),
-      ),
-      TextSpan(
-        text: 'Stocker',
-        style: TextStyle(
-          fontSize: 22,
-          fontWeight: FontWeight.bold,
-          color: Color(0xFF548cb8),
-        ),
-      ),
-    ],
-  ),
-),
-
+                const Text.rich(
+                  TextSpan(
+                    children: [
+                      TextSpan(
+                        text: 'Q',
+                        style: TextStyle(
+                          fontSize: 22,
+                          fontWeight: FontWeight.bold,
+                          color: Color(0xFF1e4868),
+                        ),
+                      ),
+                      TextSpan(
+                        text: 'Stocker',
+                        style: TextStyle(
+                          fontSize: 22,
+                          fontWeight: FontWeight.bold,
+                          color: Color(0xFF548cb8),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
               ],
             ),
             backgroundColor: const Color(0xFFf8fcff),
@@ -145,14 +145,42 @@ class HomeScreen extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: 6),
-                  const Text(
-                    'Vérifiez l\'authenticité de vos produits',
-                    style: TextStyle(
-                      fontSize: 14,
-                      color: Colors.grey,
-                      letterSpacing: 0.2),
+
+                  // Message de bienvenue élégant
+                  Container(
+                    width: double.infinity,
+                    margin: const EdgeInsets.only(top: 10, bottom: 20),
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      gradient: const LinearGradient(
+                        colors: [
+                          Color(0xFFC1A36D),
+                          Color(0xFFE8D9B5),
+                        ],
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                      ),
+                      borderRadius: BorderRadius.circular(12),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.grey.withOpacity(0.3),
+                          spreadRadius: 2,
+                          blurRadius: 8,
+                          offset: const Offset(0, 4),
+                        ),
+                      ],
+                    ),
+                    child: const Text(
+                      'Bienvenue sur QStocker ! Plongez dans l\'univers des parfums authentiques et raffinés.',
+                      style: TextStyle(
+                        fontSize: 16,
+                        color: Color(0xFF1e4868),
+                        fontWeight: FontWeight.w500,
+                        height: 1.4,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
                   ),
-                  const SizedBox(height: 30),
 
                   // Grid de fonctionnalités
                   GridView.count(
@@ -177,13 +205,21 @@ class HomeScreen extends StatelessWidget {
                         const Color(0xFF1e4868).withOpacity(0.1),
                         () => Navigator.push(context, MaterialPageRoute(builder: (_) => const HistoryScreen())),
                       ),
-                      _buildFeatureButton(
-                        context,
-                        Icons.visibility,
-                        'Visualiser les produits',
-                        const Color(0xFF548CB8).withOpacity(0.1),
-                        () => Navigator.push(context, MaterialPageRoute(builder: (_) => const ProductsScreen())),
-                      ),
+                     _buildFeatureButton(
+  context,
+  Icons.visibility,
+  'Visualiser les produits',
+  const Color(0xFF548CB8).withOpacity(0.1),
+  () {
+    final productService = Provider.of<ProductService>(context, listen: false);
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => ProductsScreen(productService: productService),
+      ),
+    );
+  },
+),
                       _buildFeatureButton(
                         context,
                         Icons.verified_user,

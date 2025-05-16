@@ -1,46 +1,35 @@
 import 'package:firebase_database/firebase_database.dart';
-import '../models/product_model.dart';
+import '../models/product.dart';
+
 class ProductService {
-  final DatabaseReference _productsRef = 
-      FirebaseDatabase.instance.ref().child('products');
+  final DatabaseReference _database = FirebaseDatabase.instance.ref().child('products');
 
-  // Récupérer tous les produits
-  Future<List<Product>> getAllProducts() async {
+  Future<List<Product>> fetchProducts() async {
     try {
-      DatabaseEvent event = await _productsRef.once();
+      DatabaseEvent event = await _database.once();
       DataSnapshot snapshot = event.snapshot;
-
-      if (snapshot.value == null) return [];
-
-      Map<dynamic, dynamic> values = snapshot.value as Map<dynamic, dynamic>;
-      List<Product> products = [];
-
-      values.forEach((key, value) {
-        products.add(Product.fromMap(Map<String, dynamic>.from(value), key));
-      });
-
-      return products;
+      if (snapshot.value != null) {
+        Map<dynamic, dynamic> values = snapshot.value as Map<dynamic, dynamic>;
+        return values.values.map((value) => Product.fromJson(value)).toList();
+      } else {
+        return [];
+      }
     } catch (e) {
-      print('Erreur lors de la récupération des produits: $e');
-      return [];
+      throw Exception('Erreur de connexion: ${e.toString()}');
     }
   }
 
-  // Récupérer un produit par ID
-  Future<Product?> getProductById(String id) async {
+  Future<Product> fetchProductById(String id) async {
     try {
-      DatabaseEvent event = await _productsRef.child(id).once();
+      DatabaseEvent event = await _database.child(id).once();
       DataSnapshot snapshot = event.snapshot;
-
-      if (snapshot.value == null) return null;
-
-      return Product.fromMap(
-        Map<String, dynamic>.from(snapshot.value as Map),
-        id,
-      );
+      if (snapshot.value != null) {
+        return Product.fromJson(snapshot.value as Map<dynamic, dynamic>);
+      } else {
+        throw Exception('Produit non trouvé');
+      }
     } catch (e) {
-      print('Erreur lors de la récupération du produit: $e');
-      return null;
+      throw Exception('Erreur de connexion: ${e.toString()}');
     }
   }
 }

@@ -11,6 +11,8 @@ import 'screens/register_screen.dart';
 import 'screens/forgot_password_screen.dart';
 import 'services/auth_service.dart';
 import 'firebase_options.dart';
+import 'services/product_service.dart';
+import 'services/cart_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -28,14 +30,17 @@ void main() async {
       MultiProvider(
         providers: [
           Provider<AuthService>(create: (_) => AuthService()),
+          ChangeNotifierProvider(create: (_) => CartService()),
+          Provider(create: (_) => ProductService()), // Suppression du paramètre baseUrl
         ],
-        child: MyApp(),
+        child: const MyApp(),
       ),
     );
   } catch (e) {
     print('Erreur lors de l\'initialisation de l\'application: $e');
   }
 }
+
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
@@ -91,12 +96,12 @@ class MyApp extends StatelessWidget {
       // Gestion des routes
       initialRoute: '/',
       routes: {
-        '/': (context) => SplashScreen(),
-        '/auth': (context) => AuthWrapper(),
-        '/home': (context) => HomeScreen(),
-        '/login': (context) => LoginScreen(),
-        '/register': (context) => RegisterScreen(),
-        '/forgot-password': (context) => ForgotPasswordScreen(),
+        '/': (context) => const SplashScreen(),
+        '/auth': (context) => const AuthWrapper(),
+        '/home': (context) => const HomeScreen(),
+        '/login': (context) => const LoginScreen(),
+        '/register': (context) => const RegisterScreen(),
+        '/forgot-password': (context) => const ForgotPasswordScreen(),
       },
 
       // Personnalisation des transitions entre pages
@@ -105,17 +110,17 @@ class MyApp extends StatelessWidget {
           pageBuilder: (context, animation, secondaryAnimation) {
             switch (settings.name) {
               case '/':
-                return SplashScreen();
+                return const SplashScreen();
               case '/auth':
-                return AuthWrapper();
+                return const AuthWrapper();
               case '/home':
-                return HomeScreen();
+                return const HomeScreen();
               case '/login':
-                return LoginScreen();
+                return const LoginScreen();
               case '/register':
-                return RegisterScreen();
+                return const RegisterScreen();
               case '/forgot-password':
-                return ForgotPasswordScreen();
+                return const ForgotPasswordScreen();
               default:
                 return const Scaffold(
                   body: Center(child: Text('Page non trouvée')),
