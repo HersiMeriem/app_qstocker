@@ -9,7 +9,7 @@ import 'order_confirmation_screen.dart';
 import '../models/cart_item.dart';
 
 class CheckoutScreen extends StatefulWidget {
-  const CheckoutScreen({Key? key}) : super(key: key);
+  const CheckoutScreen({super.key});
 
   @override
   _CheckoutScreenState createState() => _CheckoutScreenState();
@@ -53,14 +53,14 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
       );
 
       final orderId = 'ORD-${DateTime.now().millisecondsSinceEpoch}';
-      
+
       final order = Order(
         id: orderId,
         customerName: _nameController.text.trim(),
         customerPhone: _phoneController.text.trim(),
         customerAddress: _addressController.text.trim(),
         customerNotes: _notesController.text.trim(),
-        items: List<CartItem>.from(cartService.items), // Copie de la liste
+        items: List<CartItem>.from(cartService.items),
         totalAmount: cartService.totalAmount,
         orderDate: DateTime.now(),
         paymentMethod: 'on_delivery',
@@ -74,7 +74,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
 
       if (confirmedOrder != null) {
         await orderService.placeOrder(confirmedOrder);
-        
+
         if (!mounted) return;
         Navigator.pushReplacement(
           context,
@@ -82,7 +82,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
             builder: (context) => OrderConfirmationScreen(orderId: orderId),
           ),
         );
-        
+
         cartService.clearCart();
       }
     } catch (e) {
@@ -119,7 +119,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
               Text('Adresse: ${order.customerAddress}'),
             const SizedBox(height: 16),
             const Text('Articles:', style: TextStyle(fontWeight: FontWeight.bold)),
-            ...order.items.map((item) => 
+            ...order.items.map((item) =>
               Text('- ${item.product.name} (x${item.quantity})')
             ),
             const SizedBox(height: 16),
@@ -244,31 +244,31 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
     );
   }
 
-Widget _buildTextFormField({
-  required TextEditingController controller,
-  required String label,
-  required IconData icon,
-  TextInputType? keyboardType,
-  String? Function(String?)? validator,
-  int maxLines = 1,
-}) {
-  return Padding(
-    padding: const EdgeInsets.only(bottom: 16.0),
-    child: TextFormField(
-      controller: controller,
-      keyboardType: keyboardType,
-      validator: validator,
-      maxLines: maxLines,
-      decoration: InputDecoration(
-        labelText: label,
-        prefixIcon: Icon(icon),
-        border: const OutlineInputBorder(
-          borderRadius: BorderRadius.all(Radius.circular(12)),
-        ), 
-      ), 
-    ), 
-  ); 
-}
+  Widget _buildTextFormField({
+    required TextEditingController controller,
+    required String label,
+    required IconData icon,
+    TextInputType? keyboardType,
+    String? Function(String?)? validator,
+    int maxLines = 1,
+  }) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 16.0),
+      child: TextFormField(
+        controller: controller,
+        keyboardType: keyboardType,
+        validator: validator,
+        maxLines: maxLines,
+        decoration: InputDecoration(
+          labelText: label,
+          prefixIcon: Icon(icon),
+          border: const OutlineInputBorder(
+            borderRadius: BorderRadius.all(Radius.circular(12)),
+          ),
+        ),
+      ),
+    );
+  }
 
   Widget _buildOrderItemsList(CartService cartService) {
     return ListView.builder(

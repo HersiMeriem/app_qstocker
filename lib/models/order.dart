@@ -1,4 +1,5 @@
 import 'package:app_qstocker/models/cart_item.dart';
+import 'package:app_qstocker/models/product.dart';
 
 class Order {
   final String id;
@@ -11,7 +12,7 @@ class Order {
   final DateTime orderDate;
   final String status;
   final String paymentMethod;
-  final String userId; // Ajouté
+  final String userId;
 
   Order({
     required this.id,
@@ -24,6 +25,77 @@ class Order {
     required this.orderDate,
     this.status = 'pending',
     this.paymentMethod = 'on_delivery',
-    required this.userId, // Ajouté
+    required this.userId,
   });
+
+  factory Order.fromJson(Map<String, dynamic> json) {
+    return Order(
+      id: json['id'] ?? '',
+      customerName: json['customerName'] ?? '',
+      customerPhone: json['customerPhone'] ?? '',
+      customerAddress: json['customerAddress'],
+      customerNotes: json['customerNotes'],
+      items: (json['items'] as List<dynamic>?)?.map((item) {
+        return CartItem(
+          product: Product(
+            id: item['productId'] ?? '',
+            name: item['productName'] ?? '',
+            imageUrl: item['productImage'],
+            unitPrice: (item['unitPrice'] ?? 0).toDouble(),
+            brand: item['brand'] ?? '',
+            category: item['category'] ?? '',
+            volume: item['volume'] ?? '',
+            costPrice: (item['costPrice'] ?? 0).toDouble(),
+            origin: item['origin'] ?? '',
+            status: item['status'] ?? 'active',
+            perfumeType: item['perfumeType'] ?? '',
+            qrCode: item['qrCode'],
+            description: item['description'],
+            olfactiveFamily: item['olfactiveFamily'],
+            promotion: item['promotion'] != null 
+                ? Promotion.fromJson(item['promotion']) 
+                : null,
+            isAuthentic: item['isAuthentic'],
+            createdAt: item['createdAt'] != null 
+                ? DateTime.parse(item['createdAt']) 
+                : null,
+            updatedAt: item['updatedAt'] != null 
+                ? DateTime.parse(item['updatedAt']) 
+                : null,
+          ),
+          quantity: item['quantity'] ?? 1,
+        );
+      }).toList() ?? [],
+      totalAmount: (json['totalAmount'] ?? 0).toDouble(),
+      orderDate: DateTime.parse(json['orderDate']),
+      status: json['status'] ?? 'pending',
+      paymentMethod: json['paymentMethod'] ?? 'on_delivery',
+      userId: json['userId'] ?? '',
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'customerName': customerName,
+      'customerPhone': customerPhone,
+      'customerAddress': customerAddress,
+      'customerNotes': customerNotes,
+      'items': items.map((item) => {
+        'productId': item.product.id,
+        'productName': item.product.name,
+        'quantity': item.quantity,
+        'unitPrice': item.product.currentPrice,
+        'totalPrice': item.totalPrice,
+        'productImage': item.product.imageUrl,
+        'brand': item.product.brand,
+        'category': item.product.category,
+      }).toList(),
+      'totalAmount': totalAmount,
+      'orderDate': orderDate.toIso8601String(),
+      'status': status,
+      'paymentMethod': paymentMethod,
+      'userId': userId,
+    };
+  }
 }

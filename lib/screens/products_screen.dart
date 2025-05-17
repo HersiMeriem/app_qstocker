@@ -8,11 +8,12 @@ import '../widgets/product_card.dart';
 import '../widgets/category_filter.dart';
 import 'cart_screen.dart';
 import '../widgets/search_app_bar.dart';
+import 'order_history_screen.dart'; // Assurez-vous d'importer l'écran d'historique des commandes
 
 class ProductsScreen extends StatefulWidget {
   final ProductService productService;
 
-  const ProductsScreen({Key? key, required this.productService}) : super(key: key);
+  const ProductsScreen({super.key, required this.productService});
 
   @override
   _ProductsScreenState createState() => _ProductsScreenState();
@@ -85,13 +86,22 @@ class _ProductsScreenState extends State<ProductsScreen> {
   @override
   Widget build(BuildContext context) {
     final cartService = Provider.of<CartService>(context);
-    final categories = ['Tous', ..._products.map((p) => p.category).toSet().toList()];
+    final categories = ['Tous', ..._products.map((p) => p.category).toSet()];
 
     return Scaffold(
       appBar: SearchAppBar(
         title: 'Nos Produits',
         onSearch: _onSearch,
         actions: [
+          IconButton(
+            icon: const Icon(Icons.history),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const OrderHistoryScreen()),
+              );
+            },
+          ),
           Stack(
             children: [
               IconButton(
@@ -124,8 +134,8 @@ class _ProductsScreenState extends State<ProductsScreen> {
         onPressed: () {
           // Action pour ajouter un nouveau produit
         },
-        child: const Icon(Icons.add),
         backgroundColor: Theme.of(context).primaryColor,
+        child: const Icon(Icons.add),
       ),
       body: RefreshIndicator(
         onRefresh: _refreshProducts,

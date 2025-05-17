@@ -8,12 +8,12 @@ class SearchAppBar extends StatelessWidget implements PreferredSizeWidget {
   final bool automaticallyImplyLeading;
 
   const SearchAppBar({
-    Key? key,
+    super.key,
     required this.title,
     required this.onSearch,
     this.actions = const [],
     this.automaticallyImplyLeading = true,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

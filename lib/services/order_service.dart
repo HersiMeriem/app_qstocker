@@ -2,100 +2,72 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:firebase_auth/firebase_auth.dart';
 import '../models/order.dart';
-import '../models/cart_item.dart';
 
 class OrderService {
-  static const String _basePath = 'orders.json';
   final String baseUrl;
 
   OrderService({required this.baseUrl});
 
   Future<String> placeOrder(Order order) async {
     try {
-      // Vérification de l'authentification
       final user = FirebaseAuth.instance.currentUser;
-      if (user == null) {
-        throw Exception('Utilisateur non authentifié');
-      }
+      if (user == null) throw Exception('Utilisateur non authentifié');
 
-      // Récupération du token d'authentification
       final token = await user.getIdToken();
+      final url = Uri.parse('$baseUrl/orders.json?auth=$token');
 
-      // Construction de l'URL avec authentification
-      final url = Uri.parse('$baseUrl/$_basePath?auth=$token');
-
-      // Préparation des données de la commande
-      final orderData = _prepareOrderData(order, user.uid);
-
-      // Envoi de la requête
+      print("📡 Envoi de la commande à Firebase...");
       final response = await http.post(
         url,
         headers: {'Content-Type': 'application/json'},
-        body: json.encode(orderData),
+        body: json.encode(order.toJson()),
       );
 
-      // Gestion de la réponse
-      return _handleResponse(response);
+      if (response.statusCode == 200) {
+        final responseData = json.decode(response.body);
+        print("✅ Commande enregistrée avec ID: ${responseData['name']}");
+        return responseData['name'];
+      } else {
+        throw Exception('Erreur serveur: ${response.statusCode}');
+      }
     } catch (e) {
+      print("❌ Échec de la commande: ${e.toString()}");
       throw Exception('Échec de la commande: ${e.toString()}');
     }
   }
 
-  Map<String, dynamic> _prepareOrderData(Order order, String userId) {
-    return {
-      'id': order.id,
-      'customerName': order.customerName,
-      'customerPhone': order.customerPhone,
-      'customerAddress': order.customerAddress ?? '',
-      'customerNotes': order.customerNotes ?? '',
-      'userId': userId,
-      'items': _prepareOrderItems(order.items),
-      'totalAmount': order.totalAmount,
-      'orderDate': DateTime.now().toIso8601String(),
-      'status': 'pending',
-      'paymentMethod': order.paymentMethod,
-    };
-  }
+  Future<List<Order>> fetchUserOrders(String userId) async {
+    try {
+      final user = FirebaseAuth.instance.currentUser;
+      if (user == null) throw Exception('Utilisateur non authentifié');
 
-  List<Map<String, dynamic>> _prepareOrderItems(List<CartItem> items) {
-    return items
-        .map(
-          (item) => {
-            'productId': item.product.id,
-            'productName': item.product.name,
-            'quantity': item.quantity,
-            'unitPrice': item.product.currentPrice,
-            'totalPrice': item.totalPrice,
-            'productImage': item.product.imageUrl ?? '',
-          },
-        )
-        .toList();
-  }
+      final token = await user.getIdToken();
+      final url = Uri.parse('$baseUrl/orders.json?orderBy="userId"&equalTo="$userId"&auth=$token');
+      print("📡 Appel URL: $url");
 
-  String _handleResponse(http.Response response) {
-    if (response.statusCode == 200 || response.statusCode == 201) {
-      final responseData = json.decode(response.body);
-      return responseData['name']; // Retourne l'ID généré par Firebase
-    } else {
-      throw Exception(
-        'Erreur serveur (${response.statusCode}): ${response.reasonPhrase}',
-      );
-    }
-  }
+      final response = await http.get(url);
+      print("📥 Réponse Firebase: ${response.body}");
 
-  // Méthode optionnelle pour valider les données avant envoi
-  static void validateOrder(Order order) {
-    if (order.customerName.isEmpty) {
-      throw Exception('Le nom du client est requis');
-    }
-    if (order.customerPhone.isEmpty) {
-      throw Exception('Le téléphone du client est requis');
-    }
-    if (order.items.isEmpty) {
-      throw Exception('Le panier est vide');
-    }
-    if (order.totalAmount <= 0) {
-      throw Exception('Montant total invalide');
+      if (response.statusCode == 200) {
+        final Map<String, dynamic>? data = json.decode(response.body);
+        if (data == null || data.isEmpty) {
+          print("⚠️ Aucune commande trouvée pour cet utilisateur.");
+          return [];
+        }
+
+        final orders = data.entries.map((entry) {
+          return Order.fromJson({...entry.value, 'id': entry.key});
+        }).toList()
+          ..sort((a, b) => b.orderDate.compareTo(a.orderDate));
+
+        print("✅ ${orders.length} commandes récupérées pour l'utilisateur $userId");
+        return orders;
+      } else {
+        throw Exception('Erreur serveur: ${response.statusCode} - ${response.body}');
+      }
+    } catch (e) {
+      print("❌ Échec de récupération des commandes: ${e.toString()}");
+      throw Exception('Échec de récupération des commandes: ${e.toString()}');
     }
   }
 }

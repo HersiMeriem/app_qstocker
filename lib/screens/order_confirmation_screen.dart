@@ -4,64 +4,58 @@ import 'package:flutter/material.dart';
 class OrderConfirmationScreen extends StatelessWidget {
   final String orderId;
 
-  const OrderConfirmationScreen({Key? key, required this.orderId}) : super(key: key);
+  const OrderConfirmationScreen({super.key, required this.orderId});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: const Color(0xFFE8F5E9),
       appBar: AppBar(
-        title: const Text('Confirmation de commande'),
+        backgroundColor: Colors.white,
         elevation: 0,
+        title: const Text('🎉 Confirmation', style: TextStyle(color: Colors.black)),
+        iconTheme: const IconThemeData(color: Colors.black),
       ),
       body: Padding(
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(24),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            const Icon(
-              Icons.check_circle_outline,
-              size: 100,
-              color: Colors.green,
-            ),
-            const SizedBox(height: 32),
+            const Icon(Icons.check_circle, size: 100, color: Colors.green),
+            const SizedBox(height: 20),
             const Text(
-              'Merci pour votre commande!',
-              style: TextStyle(
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
-              ),
+              'Merci pour votre commande !',
+              style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 16),
             Text(
-              'Numéro de commande: $orderId',
-              style: const TextStyle(
-                fontSize: 18,
-              ),
+              'Numéro de commande : $orderId',
+              style: const TextStyle(fontSize: 16),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 16),
             const Text(
-              'Votre commande a été enregistrée avec succès. Vous serez contacté par notre livreur pour la livraison et le paiement.',
+              'Nous vous contacterons bientôt pour la livraison.',
               textAlign: TextAlign.center,
-              style: TextStyle(
-                fontSize: 16,
-              ),
+              style: TextStyle(fontSize: 16),
             ),
             const SizedBox(height: 32),
-            ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton.icon(
+                style: ElevatedButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(vertical: 14),
+                  backgroundColor: Colors.green,
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                 ),
-                padding: const EdgeInsets.symmetric(vertical: 16),
+                onPressed: () {
+                  Navigator.popUntil(context, (route) => route.isFirst);
+                },
+                icon: const Icon(Icons.home),
+                label: const Text('Retour à l\'accueil'),
               ),
-              onPressed: () {
-                Navigator.popUntil(context, (route) => route.isFirst);
-              },
-              child: const Text('Retour à l\'accueil'),
-            ),
+            )
           ],
         ),
       ),

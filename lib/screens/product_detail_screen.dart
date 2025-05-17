@@ -1,15 +1,15 @@
-// product_detail_screen.dart
+import 'dart:convert'; // Assurez-vous d'importer cette bibliothèque pour base64Decode
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../models/product.dart';
 import '../services/cart_service.dart';
-import 'package:cached_network_image/cached_network_image.dart';
 import '../screens/cart_screen.dart';
+
 
 class ProductDetailScreen extends StatelessWidget {
   final Product product;
 
-  const ProductDetailScreen({Key? key, required this.product}) : super(key: key);
+  const ProductDetailScreen({super.key, required this.product});
 
   @override
   Widget build(BuildContext context) {
@@ -28,21 +28,7 @@ class ProductDetailScreen extends StatelessWidget {
             Hero(
               tag: 'product-image-${product.id}',
               child: product.imageUrl != null
-                  ? CachedNetworkImage(
-                      imageUrl: product.imageUrl!,
-                      height: 300,
-                      fit: BoxFit.cover,
-                      placeholder: (context, url) => Container(
-                        height: 300,
-                        color: Colors.grey[200],
-                        child: const Center(child: CircularProgressIndicator()),
-                      ),
-                      errorWidget: (context, url, error) => Container(
-                        height: 300,
-                        color: Colors.grey[200],
-                        child: const Icon(Icons.error),
-                      ),
-                    )
+                  ? _buildImage(product.imageUrl!)
                   : Container(
                       height: 300,
                       color: Colors.grey[200],
@@ -169,6 +155,42 @@ class ProductDetailScreen extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  Widget _buildImage(String imageUrl) {
+    if (imageUrl.startsWith('data:image/')) {
+      try {
+        final base64Data = imageUrl.split(',').last;
+        return Image.memory(
+          base64Decode(base64Data),
+          height: 300,
+          fit: BoxFit.cover,
+        );
+      } catch (e) {
+        return Container(
+          height: 300,
+          color: Colors.grey[200],
+          child: const Center(
+            child: Icon(Icons.broken_image, size: 50, color: Colors.grey),
+          ),
+        );
+      }
+    } else {
+      return Image.network(
+        imageUrl,
+        height: 300,
+        fit: BoxFit.cover,
+        errorBuilder: (context, error, stackTrace) {
+          return Container(
+            height: 300,
+            color: Colors.grey[200],
+            child: const Center(
+              child: Icon(Icons.error, size: 50, color: Colors.grey),
+            ),
+          );
+        },
+      );
+    }
   }
 
   Widget _buildPriceSection(BuildContext context) {

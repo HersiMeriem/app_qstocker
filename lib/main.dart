@@ -1,3 +1,4 @@
+import 'package:app_qstocker/services/order_service.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -13,6 +14,7 @@ import 'services/auth_service.dart';
 import 'firebase_options.dart';
 import 'services/product_service.dart';
 import 'services/cart_service.dart';
+import 'theme/theme.dart'; 
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -32,6 +34,11 @@ void main() async {
           Provider<AuthService>(create: (_) => AuthService()),
           ChangeNotifierProvider(create: (_) => CartService()),
           Provider(create: (_) => ProductService()), 
+          Provider<OrderService>(
+  create: (_) => OrderService(
+    baseUrl: 'https://qstocker-9b450-default-rtdb.firebaseio.com',
+  ),
+),
         ],
         child: const MyApp(),
       ),
@@ -40,7 +47,6 @@ void main() async {
     print('Erreur lors de l\'initialisation de l\'application: $e');
   }
 }
-
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
@@ -62,36 +68,8 @@ class MyApp extends StatelessWidget {
       ],
       locale: const Locale('fr', 'FR'),
 
-      // Configuration du thème
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(
-          seedColor: const Color(0xFF548CB8), // Couleur principale bleue
-          brightness: Brightness.light,
-        ),
-        useMaterial3: true,
-        inputDecorationTheme: InputDecorationTheme(
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(12),
-          ),
-          filled: true,
-          fillColor: Colors.white,
-        ),
-        elevatedButtonTheme: ElevatedButtonThemeData(
-          style: ElevatedButton.styleFrom(
-            backgroundColor: const Color(0xFF548CB8),
-            padding: const EdgeInsets.symmetric(vertical: 16),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
-            ),
-          ),
-        ),
-        appBarTheme: const AppBarTheme(
-          elevation: 0,
-          centerTitle: true,
-          backgroundColor: Colors.transparent,
-          iconTheme: IconThemeData(color: Color(0xFF1e4868)),
-        ),
-      ),
+      // ✅ Nouvelle configuration avec le thème extrait
+      theme: appTheme,
 
       // Gestion des routes
       initialRoute: '/',
