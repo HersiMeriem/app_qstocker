@@ -66,7 +66,6 @@ class _ProductsScreenState extends State<ProductsScreen> {
         return matchesCategory && matchesSearch;
       }).toList();
 
-      // Optionnel: Trier pour mettre les produits en rupture à la fin
       _filteredProducts.sort((a, b) {
         if (a.isAvailable && !b.isAvailable) return -1;
         if (!a.isAvailable && b.isAvailable) return 1;
@@ -213,7 +212,7 @@ class _ProductsScreenState extends State<ProductsScreen> {
           ],
         ),
       ),
-      bottomNavigationBar: buildCustomBottomBar(context, 1), // Ajoutez la barre de navigation ici
+      bottomNavigationBar: buildCustomBottomBar(context, 1),
     );
   }
 
@@ -326,7 +325,7 @@ Widget buildCustomBottomBar(BuildContext context, int currentIndex) {
                 currentIndex: currentIndex,
                 targetIndex: 1,
               ),
-              const SizedBox(width: 64), // Espace pour le bouton Scan
+              const SizedBox(width: 64),
               _buildBottomNavItem(
                 context: context,
                 icon: Icons.history_rounded,
@@ -349,7 +348,7 @@ Widget buildCustomBottomBar(BuildContext context, int currentIndex) {
           ),
         ),
         Positioned(
-          top: -10, // abaissé légèrement
+          top: -10,
           left: 0,
           right: 0,
           child: Center(

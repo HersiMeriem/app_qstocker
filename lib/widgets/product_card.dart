@@ -1,7 +1,8 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import '../models/product.dart';
-import 'package:app_qstocker/screens/product_detail_screen.dart';
+import '../screens/product_detail_screen.dart';
 
 class ProductCard extends StatelessWidget {
   final Product product;
@@ -173,17 +174,21 @@ class ProductCard extends StatelessWidget {
         );
       }
     } else {
-      return Image.network(
-        imageUrl,
+      return CachedNetworkImage(
+        imageUrl: imageUrl,
         fit: BoxFit.cover,
-        errorBuilder: (context, error, stackTrace) {
-          return Container(
-            color: Colors.grey[200],
-            child: const Center(
-              child: Icon(Icons.image, size: 50, color: Colors.grey),
-            ),
-          );
-        },
+        placeholder: (context, url) => Container(
+          color: Colors.grey[200],
+          child: const Center(
+            child: CircularProgressIndicator(),
+          ),
+        ),
+        errorWidget: (context, url, error) => Container(
+          color: Colors.grey[200],
+          child: const Center(
+            child: Icon(Icons.image, size: 50, color: Colors.grey),
+          ),
+        ),
       );
     }
   }
