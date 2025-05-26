@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_database/firebase_database.dart';
 import '../models/order.dart';
 import '../services/order_service.dart';
 
@@ -14,29 +15,43 @@ class OrderHistoryScreen extends StatefulWidget {
 class _OrderHistoryScreenState extends State<OrderHistoryScreen> {
   late Future<List<Order>> _ordersFuture;
   final OrderService _orderService = OrderService(
-    baseUrl: 'https://qstocker-9b450-default-rtdb.firebaseio.com',
+    baseUrl: 'https://qstockerpfe-default-rtdb.firebaseio.com',
   );
   late StreamSubscription<User?> _authSubscription;
+  late StreamSubscription<DatabaseEvent> _ordersSubscription;
 
   @override
   void initState() {
     super.initState();
-    _ordersFuture = Future.value([]); // Initialize with an empty list
-    _authSubscription = FirebaseAuth.instance.authStateChanges().listen((user) {
-      if (user != null) {
-        print("✅ Utilisateur connecté: ${user.uid}");
-        setState(() {
-          _ordersFuture = _loadOrders(user.uid);
-        });
-      } else {
-        print("⚠️ Aucun utilisateur connecté");
-      }
-    });
+    _setupOrdersStream();
+  }
+
+  void _setupOrdersStream() {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user != null) {
+      _ordersFuture = _loadOrders(user.uid);
+
+      // Écoute des changements en temps réel
+      final ordersRef = FirebaseDatabase.instance
+          .ref()
+          .child('orders')
+          .orderByChild('userId')
+          .equalTo(user.uid);
+
+      _ordersSubscription = ordersRef.onValue.listen((event) {
+        if (mounted) {
+          setState(() {
+            _ordersFuture = _loadOrders(user.uid);
+          });
+        }
+      });
+    }
   }
 
   @override
   void dispose() {
     _authSubscription.cancel();
+    _ordersSubscription.cancel();
     super.dispose();
   }
 
@@ -175,7 +190,7 @@ class _OrderHistoryScreenState extends State<OrderHistoryScreen> {
   Widget _buildOrderCard(BuildContext context, Order order) {
     return Card(
       margin: const EdgeInsets.symmetric(vertical: 8),
-      elevation: 2,
+      elevation: 4,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12),
       ),
@@ -186,18 +201,22 @@ class _OrderHistoryScreenState extends State<OrderHistoryScreen> {
         ),
         title: Text(
           'Commande #${order.id.substring(0, 8)}',
-          style: const TextStyle(fontWeight: FontWeight.bold),
+          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
         ),
         subtitle: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
               '${_formatDate(order.orderDate)} - ${order.totalAmount.toStringAsFixed(3)} DT',
+              style: const TextStyle(fontSize: 14),
             ),
             const SizedBox(height: 4),
             Text(
-              '${order.items.length} article(s)',
-              style: const TextStyle(fontSize: 12),
+              'Statut: ${_getStatusText(order.status)}',
+              style: TextStyle(
+                fontSize: 12,
+                color: _getStatusColor(order.status),
+              ),
             ),
           ],
         ),
@@ -236,7 +255,20 @@ class _OrderHistoryScreenState extends State<OrderHistoryScreen> {
                         )
                       : const Icon(Icons.image, size: 50),
                   title: Text(item.product.name),
-                  subtitle: Text('${item.quantity} x ${item.product.currentPrice.toStringAsFixed(3)} DT'),
+                  subtitle: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text('${item.quantity} x ${item.product.currentPrice.toStringAsFixed(3)} DT'),
+                      if (item.product.isOnPromotion)
+                        Text(
+                          'Prix initial: ${item.product.sellingPrice.toStringAsFixed(3)} DT',
+                          style: const TextStyle(
+                            decoration: TextDecoration.lineThrough,
+                            color: Colors.grey,
+                          ),
+                        ),
+                    ],
+                  ),
                   trailing: Text(
                     '${item.totalPrice.toStringAsFixed(3)} DT',
                     style: const TextStyle(fontWeight: FontWeight.bold),
@@ -248,11 +280,43 @@ class _OrderHistoryScreenState extends State<OrderHistoryScreen> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     const Text(
-                      'Total:',
+                      'Sous-total:',
                       style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
                     ),
                     Text(
                       '${order.totalAmount.toStringAsFixed(3)} DT',
+                      style: const TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                      ),
+                    ),
+                  ],
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const Text(
+                      'Frais de livraison:',
+                      style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                    ),
+                    Text(
+                      '${order.shippingFee.toStringAsFixed(3)} DT',
+                      style: const TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                      ),
+                    ),
+                  ],
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const Text(
+                      'Total:',
+                      style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+                    ),
+                    Text(
+                      '${order.grandTotal.toStringAsFixed(3)} DT',
                       style: const TextStyle(
                         fontWeight: FontWeight.bold,
                         fontSize: 18,
@@ -261,6 +325,16 @@ class _OrderHistoryScreenState extends State<OrderHistoryScreen> {
                     ),
                   ],
                 ),
+                if (order.status != 'cancelled')
+                  ElevatedButton(
+                    onPressed: () async {
+                      await _orderService.updateOrderStatus(order.id, 'cancelled');
+                      setState(() {
+                        _ordersFuture = _loadOrders(FirebaseAuth.instance.currentUser!.uid);
+                      });
+                    },
+                    child: const Text('Annuler la commande'),
+                  ),
               ],
             ),
           ),
@@ -276,7 +350,7 @@ class _OrderHistoryScreenState extends State<OrderHistoryScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           SizedBox(
-            width: 100,
+            width: 120,
             child: Text(
               '$label:',
               style: const TextStyle(fontWeight: FontWeight.bold),
@@ -301,7 +375,7 @@ class _OrderHistoryScreenState extends State<OrderHistoryScreen> {
       case 'pending':
         return 'En attente';
       case 'processing':
-        return 'En cours de traitement';
+        return 'En traitement';
       case 'shipped':
         return 'Expédiée';
       case 'delivered':

@@ -1,10 +1,8 @@
-import 'dart:convert'; // Assurez-vous d'importer cette bibliothèque pour base64Decode
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../models/product.dart';
 import '../services/cart_service.dart';
-import '../screens/cart_screen.dart';
-
 
 class ProductDetailScreen extends StatelessWidget {
   final Product product;
@@ -25,28 +23,69 @@ class ProductDetailScreen extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
+            // Product image with hero animation
             Hero(
               tag: 'product-image-${product.id}',
-              child: product.imageUrl != null
-                  ? _buildImage(product.imageUrl!)
-                  : Container(
-                      height: 300,
-                      color: Colors.grey[200],
-                      child: const Icon(Icons.image, size: 100, color: Colors.grey),
-                    ),
+              child: Container(
+                decoration: BoxDecoration(
+                  border: Border.all(color: Colors.grey[300]!, width: 1),
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                child: product.imageUrl != null
+                    ? _buildImage(product.imageUrl!)
+                    : Container(
+                        height: 300,
+                        color: Colors.grey[200],
+                        child: const Icon(Icons.image, size: 100, color: Colors.grey),
+                      ),
+              ),
             ),
+
+            // Product details
             Padding(
               padding: const EdgeInsets.all(16.0),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    product.name,
-                    style: theme.textTheme.titleLarge?.copyWith(
-                      fontWeight: FontWeight.bold,
-                    ),
+                  // Title and add to cart button
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Text(
+                          product.name,
+                          style: theme.textTheme.titleLarge?.copyWith(
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                      if (product.isAvailable)
+                        IconButton(
+                          icon: Container(
+                            padding: const EdgeInsets.all(8),
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              color: theme.primaryColor,
+                            ),
+                            child: const Icon(Icons.add_shopping_cart, color: Colors.white),
+                          ),
+                          onPressed: () {
+                            cartService.addToCart(product);
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text('${product.name} ajouté au panier'),
+                                action: SnackBarAction(
+                                  label: 'Voir',
+                                  onPressed: () => Navigator.pushNamed(context, '/cart'),
+                                ),
+                              ),
+                            );
+                          },
+                        ),
+                    ],
                   ),
                   const SizedBox(height: 8),
+
+                  // Brand and price
                   if (product.brand.isNotEmpty)
                     Text(
                       product.brand,
@@ -55,8 +94,11 @@ class ProductDetailScreen extends StatelessWidget {
                       ),
                     ),
                   const SizedBox(height: 16),
+
                   _buildPriceSection(context),
                   const SizedBox(height: 16),
+
+                  // Product tags/chips
                   Wrap(
                     spacing: 8,
                     runSpacing: 8,
@@ -76,9 +118,9 @@ class ProductDetailScreen extends StatelessWidget {
                           label: Text(product.perfumeType),
                           backgroundColor: Colors.purple[50],
                         ),
-                      if (product.status == 'out-of-stock')
+                      if (!product.isAvailable)
                         Chip(
-                          label: const Text('Rupture de stock'),
+                          label: const Text('Rupture'),
                           backgroundColor: Colors.red[50],
                           labelStyle: const TextStyle(color: Colors.red),
                         ),
@@ -97,6 +139,8 @@ class ProductDetailScreen extends StatelessWidget {
                     ],
                   ),
                   const SizedBox(height: 24),
+
+                  // Product details
                   _buildInfoRow(Icons.category, 'Catégorie', product.category),
                   if (product.olfactiveFamily?.isNotEmpty ?? false)
                     _buildInfoRow(Icons.local_florist, 'Famille olfactive', product.olfactiveFamily!),
@@ -104,16 +148,20 @@ class ProductDetailScreen extends StatelessWidget {
                   _buildInfoRow(Icons.public, 'Origine', product.origin),
                   _buildInfoRow(Icons.straighten, 'Volume', product.volume),
                   const SizedBox(height: 24),
+
+                  // Description
                   const Text(
-                    'Description:',
-                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                    'Description',
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
                   ),
                   const SizedBox(height: 8),
                   Text(
                     product.description ?? 'Aucune description disponible',
-                    style: const TextStyle(fontSize: 15),
+                    style: const TextStyle(fontSize: 15, height: 1.5),
                   ),
-                  if (product.promotion != null && product.status == 'promotion')
+
+                  // Promotion details if applicable
+                  if (product.isOnPromotion)
                     _buildPromotionSection(context),
                 ],
               ),
@@ -121,39 +169,34 @@ class ProductDetailScreen extends StatelessWidget {
           ],
         ),
       ),
-      bottomNavigationBar: BottomAppBar(
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: ElevatedButton(
-            style: ElevatedButton.styleFrom(
-              padding: const EdgeInsets.symmetric(vertical: 16),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
-            ),
-            onPressed: product.status != 'out-of-stock'
-                ? () {
-                    cartService.addToCart(product);
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text('${product.name} ajouté au panier'),
-                        action: SnackBarAction(
-                          label: 'Voir',
-                          onPressed: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(builder: (context) => const CartScreen()),
-                            );
-                          },
-                        ),
+
+      // Fixed add to cart button at bottom
+      bottomNavigationBar: product.isAvailable
+          ? Container(
+              padding: const EdgeInsets.all(16),
+              child: ElevatedButton.icon(
+                onPressed: () {
+                  cartService.addToCart(product);
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text('${product.name} ajouté au panier'),
+                      action: SnackBarAction(
+                        label: 'Voir',
+                        onPressed: () => Navigator.pushNamed(context, '/cart'),
                       ),
-                    );
-                  }
-                : null,
-            child: const Text('Ajouter au panier'),
-          ),
-        ),
-      ),
+                    ),
+                  );
+                },
+                icon: const Icon(Icons.add_shopping_cart),
+                label: const Text('Ajouter au panier'),
+                style: ElevatedButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12)),
+                ),
+              ),
+            )
+          : null,
     );
   }
 
@@ -194,41 +237,47 @@ class ProductDetailScreen extends StatelessWidget {
   }
 
   Widget _buildPriceSection(BuildContext context) {
-    return Row(
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        if (product.status == 'promotion' && product.promotion != null)
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-            decoration: BoxDecoration(
-              color: Colors.red,
-              borderRadius: BorderRadius.circular(4),
-            ),
-            child: Text(
-              '-${product.promotion!.discountPercentage}%',
-              style: const TextStyle(color: Colors.white),
-            ),
-          ),
-        const SizedBox(width: 12),
-        Text(
-          '${product.currentPrice.toStringAsFixed(3)} DT',
-          style: TextStyle(
-            fontSize: 24,
-            fontWeight: FontWeight.bold,
-            color: Theme.of(context).primaryColor,
-            decoration: product.status == 'promotion'
-                ? TextDecoration.lineThrough
-                : null,
-          ),
-        ),
-        if (product.status == 'promotion')
-          Padding(
-            padding: const EdgeInsets.only(left: 12.0),
-            child: Text(
-              '${product.unitPrice.toStringAsFixed(3)} DT',
-              style: const TextStyle(
-                fontSize: 24,
+        Row(
+          children: [
+            if (product.isOnPromotion)
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                decoration: BoxDecoration(
+                  color: Colors.red,
+                  borderRadius: BorderRadius.circular(4),
+                ),
+                child: Text(
+                  '-${product.promotion!.discountPercentage}%',
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+            const SizedBox(width: 12),
+            Text(
+              '${product.currentPrice.toStringAsFixed(3)} DT',
+              style: TextStyle(
+                fontSize: 28,
                 fontWeight: FontWeight.bold,
-                color: Colors.red,
+                color: product.isOnPromotion
+                    ? Colors.red
+                    : Theme.of(context).colorScheme.primary,
+              ),
+            ),
+          ],
+        ),
+        if (product.isOnPromotion)
+          Padding(
+            padding: const EdgeInsets.only(top: 4),
+            child: Text(
+              'Au lieu de ${product.sellingPrice.toStringAsFixed(3)} DT',
+              style: TextStyle(
+                color: Colors.grey,
+                decoration: TextDecoration.lineThrough,
               ),
             ),
           ),
@@ -238,16 +287,33 @@ class ProductDetailScreen extends StatelessWidget {
 
   Widget _buildInfoRow(IconData icon, String label, String value) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 8.0),
+      padding: const EdgeInsets.symmetric(vertical: 8.0),
       child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(icon, size: 20, color: Colors.grey),
-          const SizedBox(width: 8),
-          Text(
-            '$label: ',
-            style: const TextStyle(fontWeight: FontWeight.bold),
+          Icon(icon, size: 24, color: Colors.grey[600]),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  label,
+                  style: TextStyle(
+                    color: Colors.grey[600],
+                    fontSize: 14,
+                  ),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  value,
+                  style: const TextStyle(
+                    fontSize: 16,
+                  ),
+                ),
+              ],
+            ),
           ),
-          Text(value),
         ],
       ),
     );
@@ -255,45 +321,56 @@ class ProductDetailScreen extends StatelessWidget {
 
   Widget _buildPromotionSection(BuildContext context) {
     final promotion = product.promotion!;
-    final now = DateTime.now();
-    final startDate = DateTime.parse(promotion.startDate);
-    final endDate = DateTime.parse(promotion.endDate);
-    final isActive = now.isAfter(startDate) && now.isBefore(endDate);
+    final isActive = product.isOnPromotion;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const SizedBox(height: 24),
         const Text(
-          'Détails de la promotion:',
-          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-        ),
-        const SizedBox(height: 8),
-        _buildPromotionDetailRow('Remise', '${promotion.discountPercentage}%'),
-        _buildPromotionDetailRow('Prix original', '${product.unitPrice.toStringAsFixed(3)} DT'),
-        _buildPromotionDetailRow('Prix promotionnel', '${product.currentPrice.toStringAsFixed(3)} DT'),
-        _buildPromotionDetailRow('Début', _formatDate(startDate)),
-        _buildPromotionDetailRow('Fin', _formatDate(endDate)),
-        const SizedBox(height: 8),
-        Container(
-          padding: const EdgeInsets.all(8),
-          decoration: BoxDecoration(
-            color: isActive ? Colors.green[50] : Colors.orange[50],
-            borderRadius: BorderRadius.circular(8),
+          'Détails de la promotion',
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            fontSize: 18,
           ),
-          child: Row(
+        ),
+        const SizedBox(height: 12),
+        Container(
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: Colors.grey[50],
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(color: Colors.grey[200]!),
+          ),
+          child: Column(
             children: [
-              Icon(
-                isActive ? Icons.timer : Icons.timer_off,
-                color: isActive ? Colors.green : Colors.orange,
-              ),
-              const SizedBox(width: 8),
-              Text(
-                isActive
-                    ? 'Promotion active'
-                    : 'Promotion expirée',
-                style: TextStyle(
-                  color: isActive ? Colors.green : Colors.orange,
+              _buildPromotionDetailRow('Remise', '${promotion.discountPercentage}%'),
+              _buildPromotionDetailRow('Prix original', '${product.sellingPrice.toStringAsFixed(3)} DT'),
+              _buildPromotionDetailRow('Prix promotionnel', '${product.currentPrice.toStringAsFixed(3)} DT'),
+              _buildPromotionDetailRow('Début', _formatDate(DateTime.parse(promotion.startDate))),
+              _buildPromotionDetailRow('Fin', _formatDate(DateTime.parse(promotion.endDate))),
+              const SizedBox(height: 12),
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: isActive ? Colors.green[50] : Colors.orange[50],
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Row(
+                  children: [
+                    Icon(
+                      isActive ? Icons.timer : Icons.timer_off,
+                      color: isActive ? Colors.green : Colors.orange,
+                    ),
+                    const SizedBox(width: 12),
+                    Text(
+                      isActive ? 'Promotion active' : 'Promotion expirée',
+                      style: TextStyle(
+                        color: isActive ? Colors.green : Colors.orange,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ],
@@ -305,15 +382,22 @@ class ProductDetailScreen extends StatelessWidget {
 
   Widget _buildPromotionDetailRow(String label, String value) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 4.0),
+      padding: const EdgeInsets.symmetric(vertical: 8),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Text(
             label,
-            style: const TextStyle(fontWeight: FontWeight.bold),
+            style: const TextStyle(
+              color: Colors.grey,
+            ),
           ),
-          Text(value),
+          Text(
+            value,
+            style: const TextStyle(
+              fontWeight: FontWeight.bold,
+            ),
+          ),
         ],
       ),
     );

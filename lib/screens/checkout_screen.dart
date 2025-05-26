@@ -49,7 +49,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
 
       final cartService = Provider.of<CartService>(context, listen: false);
       final orderService = OrderService(
-        baseUrl: 'https://qstocker-9b450-default-rtdb.firebaseio.com',
+        baseUrl: 'https://qstockerpfe-default-rtdb.firebaseio.com',
       );
 
       final orderId = 'ORD-${DateTime.now().millisecondsSinceEpoch}';
@@ -62,6 +62,8 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
         customerNotes: _notesController.text.trim(),
         items: List<CartItem>.from(cartService.items),
         totalAmount: cartService.totalAmount,
+        shippingFee: cartService.shippingFee,
+        grandTotal: cartService.grandTotal,
         orderDate: DateTime.now(),
         paymentMethod: 'on_delivery',
         userId: user.uid,
@@ -124,7 +126,15 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
             ),
             const SizedBox(height: 16),
             Text(
-              'Total: ${order.totalAmount.toStringAsFixed(3)} DT',
+              'Sous-total: ${order.totalAmount.toStringAsFixed(3)} DT',
+              style: const TextStyle(fontSize: 16),
+            ),
+            Text(
+              'Frais de livraison: ${order.shippingFee.toStringAsFixed(3)} DT',
+              style: const TextStyle(fontSize: 16),
+            ),
+            Text(
+              'Total: ${order.grandTotal.toStringAsFixed(3)} DT',
               style: const TextStyle(
                 fontWeight: FontWeight.bold,
                 fontSize: 18,
@@ -193,12 +203,18 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
               ),
               _buildTextFormField(
                 controller: _addressController,
-                label: 'Adresse de livraison (optionnel)',
+                label: 'Adresse de livraison',
                 icon: Icons.location_on,
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Veuillez entrer votre adresse';
+                  }
+                  return null;
+                },
               ),
               _buildTextFormField(
                 controller: _notesController,
-                label: 'Notes supplémentaires (optionnel)',
+                label: 'Notes supplémentaires ',
                 icon: Icons.note,
                 maxLines: 3,
               ),
@@ -208,7 +224,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
               _buildOrderItemsList(cartService),
 
               // Section Total
-              _buildTotalCard(cartService.totalAmount),
+              _buildTotalCard(cartService),
 
               // Section Paiement
               _buildSectionTitle('Méthode de paiement'),
@@ -363,7 +379,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
     );
   }
 
-  Widget _buildTotalCard(double totalAmount) {
+  Widget _buildTotalCard(CartService cartService) {
     return Column(
       children: [
         const Divider(),
@@ -373,17 +389,30 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
           ),
           child: Padding(
             padding: const EdgeInsets.all(16),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            child: Column(
               children: [
-                const Text(
-                  'Total:',
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const Text('Sous-total:', style: TextStyle(fontSize: 16)),
+                    Text('${cartService.totalAmount.toStringAsFixed(3)} DT', style: const TextStyle(fontSize: 16)),
+                  ],
                 ),
-                Text(
-                  '${totalAmount.toStringAsFixed(3)} DT',
-                  style: const TextStyle(
-                      fontSize: 18, fontWeight: FontWeight.bold),
+                const SizedBox(height: 8),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const Text('Frais de livraison:', style: TextStyle(fontSize: 16)),
+                    Text('${cartService.shippingFee.toStringAsFixed(3)} DT', style: const TextStyle(fontSize: 16)),
+                  ],
+                ),
+                const SizedBox(height: 8),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const Text('Total:', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                    Text('${cartService.grandTotal.toStringAsFixed(3)} DT', style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                  ],
                 ),
               ],
             ),

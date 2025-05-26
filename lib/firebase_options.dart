@@ -41,55 +41,55 @@ class DefaultFirebaseOptions {
   }
 
   static const FirebaseOptions web = FirebaseOptions(
-    apiKey: 'AIzaSyBETwPp4E8vIyaKrUdXMGCeRJLnVL87MV0',
-    appId: '1:1015343581305:web:767d3d4679b2cfab5faca8',
-    messagingSenderId: '1015343581305',
-    projectId: 'qstocker-9b450',
-    authDomain: 'qstocker-9b450.firebaseapp.com',
-    databaseURL: 'https://qstocker-9b450-default-rtdb.firebaseio.com',
-    storageBucket: 'qstocker-9b450.firebasestorage.app',
-    measurementId: 'G-R0PK2B0LPN',
+    apiKey: 'AIzaSyCeyTJuQZLjD-kU_Dd3U00sfIJFS0uHEVY',
+    appId: '1:306373090701:web:3aba66cfe540c4915631c4',
+    messagingSenderId: '306373090701',
+    projectId: 'qstockerpfe',
+    authDomain: 'qstockerpfe.firebaseapp.com',
+    databaseURL: 'https://qstockerpfe-default-rtdb.firebaseio.com',
+    storageBucket: 'qstockerpfe.firebasestorage.app',
+    measurementId: 'G-4K10FQ47QX',
   );
 
   static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'AIzaSyBH34169zrMPgPVscRfwSy1ACDXXJFSjog',
-    appId: '1:1015343581305:android:eadb2f001d7240f65faca8',
-    messagingSenderId: '1015343581305',
-    projectId: 'qstocker-9b450',
-    databaseURL: 'https://qstocker-9b450-default-rtdb.firebaseio.com',
-    storageBucket: 'qstocker-9b450.firebasestorage.app',
+    apiKey: 'AIzaSyD1J0oPRfD0VY0-jc3ygjwJQBW2Xsnajeg',
+    appId: '1:306373090701:android:4df3fb9417d73f8c5631c4',
+    messagingSenderId: '306373090701',
+    projectId: 'qstockerpfe',
+    databaseURL: 'https://qstockerpfe-default-rtdb.firebaseio.com',
+    storageBucket: 'qstockerpfe.firebasestorage.app',
   );
 
   static const FirebaseOptions ios = FirebaseOptions(
-    apiKey: 'AIzaSyBEAl14HoopbpInOX5umQvv6q2hFySzk0Y',
-    appId: '1:1015343581305:ios:5b30a8292ffc562e5faca8',
-    messagingSenderId: '1015343581305',
-    projectId: 'qstocker-9b450',
-    databaseURL: 'https://qstocker-9b450-default-rtdb.firebaseio.com',
-    storageBucket: 'qstocker-9b450.firebasestorage.app',
-    iosClientId: '1015343581305-9sgoe23q40brd42e0e2vi34mb1ah77d0.apps.googleusercontent.com',
+    apiKey: 'AIzaSyAYzCsx0qO8YCh9_CxBocyew3aoPSGjEfE',
+    appId: '1:306373090701:ios:90aa218620b97f295631c4',
+    messagingSenderId: '306373090701',
+    projectId: 'qstockerpfe',
+    databaseURL: 'https://qstockerpfe-default-rtdb.firebaseio.com',
+    storageBucket: 'qstockerpfe.firebasestorage.app',
+    iosClientId: '306373090701-f912lm9b957klupsdmf2637sugl0q80t.apps.googleusercontent.com',
     iosBundleId: 'com.example.appQstocker',
   );
 
   static const FirebaseOptions macos = FirebaseOptions(
-    apiKey: 'AIzaSyBEAl14HoopbpInOX5umQvv6q2hFySzk0Y',
-    appId: '1:1015343581305:ios:5b30a8292ffc562e5faca8',
-    messagingSenderId: '1015343581305',
-    projectId: 'qstocker-9b450',
-    databaseURL: 'https://qstocker-9b450-default-rtdb.firebaseio.com',
-    storageBucket: 'qstocker-9b450.firebasestorage.app',
-    iosClientId: '1015343581305-9sgoe23q40brd42e0e2vi34mb1ah77d0.apps.googleusercontent.com',
+    apiKey: 'AIzaSyAYzCsx0qO8YCh9_CxBocyew3aoPSGjEfE',
+    appId: '1:306373090701:ios:90aa218620b97f295631c4',
+    messagingSenderId: '306373090701',
+    projectId: 'qstockerpfe',
+    databaseURL: 'https://qstockerpfe-default-rtdb.firebaseio.com',
+    storageBucket: 'qstockerpfe.firebasestorage.app',
+    iosClientId: '306373090701-f912lm9b957klupsdmf2637sugl0q80t.apps.googleusercontent.com',
     iosBundleId: 'com.example.appQstocker',
   );
 
   static const FirebaseOptions windows = FirebaseOptions(
-    apiKey: 'AIzaSyBETwPp4E8vIyaKrUdXMGCeRJLnVL87MV0',
-    appId: '1:1015343581305:web:66ed6c198bc6264f5faca8',
-    messagingSenderId: '1015343581305',
-    projectId: 'qstocker-9b450',
-    authDomain: 'qstocker-9b450.firebaseapp.com',
-    databaseURL: 'https://qstocker-9b450-default-rtdb.firebaseio.com',
-    storageBucket: 'qstocker-9b450.firebasestorage.app',
-    measurementId: 'G-TBHH34KBQR',
+    apiKey: 'AIzaSyCeyTJuQZLjD-kU_Dd3U00sfIJFS0uHEVY',
+    appId: '1:306373090701:web:8375de32de3932f05631c4',
+    messagingSenderId: '306373090701',
+    projectId: 'qstockerpfe',
+    authDomain: 'qstockerpfe.firebaseapp.com',
+    databaseURL: 'https://qstockerpfe-default-rtdb.firebaseio.com',
+    storageBucket: 'qstockerpfe.firebasestorage.app',
+    measurementId: 'G-48PQ0KJ48B',
   );
 }

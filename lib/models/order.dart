@@ -9,8 +9,10 @@ class Order {
   final String? customerNotes;
   final List<CartItem> items;
   final double totalAmount;
+  final double shippingFee;
+  final double grandTotal;
   final DateTime orderDate;
-  final String status;
+  String status;
   final String paymentMethod;
   final String userId;
 
@@ -22,6 +24,8 @@ class Order {
     this.customerNotes,
     required this.items,
     required this.totalAmount,
+    required this.shippingFee,
+    required this.grandTotal,
     required this.orderDate,
     this.status = 'pending',
     this.paymentMethod = 'on_delivery',
@@ -52,21 +56,25 @@ class Order {
             qrCode: item['qrCode'],
             description: item['description'],
             olfactiveFamily: item['olfactiveFamily'],
-            promotion: item['promotion'] != null 
-                ? Promotion.fromJson(item['promotion']) 
+            promotion: item['promotion'] != null
+                ? Promotion.fromJson(item['promotion'])
                 : null,
             isAuthentic: item['isAuthentic'],
-            createdAt: item['createdAt'] != null 
-                ? DateTime.parse(item['createdAt']) 
+            createdAt: item['createdAt'] != null
+                ? DateTime.parse(item['createdAt'])
                 : null,
-            updatedAt: item['updatedAt'] != null 
-                ? DateTime.parse(item['updatedAt']) 
+            updatedAt: item['updatedAt'] != null
+                ? DateTime.parse(item['updatedAt'])
                 : null,
+            stock: item['stock'] ?? 0,
+            sellingPrice: (item['sellingPrice'] ?? 0).toDouble(),
           ),
           quantity: item['quantity'] ?? 1,
         );
       }).toList() ?? [],
       totalAmount: (json['totalAmount'] ?? 0).toDouble(),
+      shippingFee: (json['shippingFee'] ?? 0).toDouble(),
+      grandTotal: (json['grandTotal'] ?? 0).toDouble(),
       orderDate: DateTime.parse(json['orderDate']),
       status: json['status'] ?? 'pending',
       paymentMethod: json['paymentMethod'] ?? 'on_delivery',
@@ -90,8 +98,12 @@ class Order {
         'productImage': item.product.imageUrl,
         'brand': item.product.brand,
         'category': item.product.category,
+        'stock': item.product.stock,
+        'sellingPrice': item.product.sellingPrice,
       }).toList(),
       'totalAmount': totalAmount,
+      'shippingFee': shippingFee,
+      'grandTotal': grandTotal,
       'orderDate': orderDate.toIso8601String(),
       'status': status,
       'paymentMethod': paymentMethod,

@@ -1,73 +1,76 @@
-import 'package:http/http.dart' as http;
-import 'dart:convert';
-import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_database/firebase_database.dart';
+import 'package:flutter/foundation.dart';
 import '../models/order.dart';
 
 class OrderService {
-  final String baseUrl;
+  final DatabaseReference _ordersRef;
 
-  OrderService({required this.baseUrl});
+  OrderService({required String baseUrl})
+      : _ordersRef = FirebaseDatabase.instanceFor(app: Firebase.app(), databaseURL: baseUrl).ref('orders');
 
-  Future<String> placeOrder(Order order) async {
+  Stream<List<Order>> getOrdersStream(String userId) {
+    return _ordersRef
+        .orderByChild('userId')
+        .equalTo(userId)
+        .onValue
+        .map((event) {
+      final data = event.snapshot.value as Map<dynamic, dynamic>?;
+      if (data == null) return [];
+
+      return data.entries.map((entry) {
+        return Order.fromJson({
+          'id': entry.key,
+          ...Map<String, dynamic>.from(entry.value),
+        });
+      }).toList()
+        ..sort((a, b) => b.orderDate.compareTo(a.orderDate));
+    });
+  }
+
+  Future<void> placeOrder(Order order) async {
     try {
-      final user = FirebaseAuth.instance.currentUser;
-      if (user == null) throw Exception('Utilisateur non authentifié');
-
-      final token = await user.getIdToken();
-      final url = Uri.parse('$baseUrl/orders.json?auth=$token');
-
-      print("📡 Envoi de la commande à Firebase...");
-      final response = await http.post(
-        url,
-        headers: {'Content-Type': 'application/json'},
-        body: json.encode(order.toJson()),
-      );
-
-      if (response.statusCode == 200) {
-        final responseData = json.decode(response.body);
-        print("✅ Commande enregistrée avec ID: ${responseData['name']}");
-        return responseData['name'];
-      } else {
-        throw Exception('Erreur serveur: ${response.statusCode}');
-      }
+      await _ordersRef.push().set(order.toJson());
     } catch (e) {
-      print("❌ Échec de la commande: ${e.toString()}");
-      throw Exception('Échec de la commande: ${e.toString()}');
+      if (kDebugMode) {
+        print('Error placing order: $e');
+      }
+      rethrow;
+    }
+  }
+
+  Future<void> updateOrderStatus(String orderId, String newStatus) async {
+    try {
+      await _ordersRef.child(orderId).update({
+        'status': newStatus,
+      });
+    } catch (e) {
+      if (kDebugMode) {
+        print('Error updating order status: $e');
+      }
+      rethrow;
     }
   }
 
   Future<List<Order>> fetchUserOrders(String userId) async {
     try {
-      final user = FirebaseAuth.instance.currentUser;
-      if (user == null) throw Exception('Utilisateur non authentifié');
+      final snapshot = await _ordersRef.orderByChild('userId').equalTo(userId).once();
+      final data = snapshot.snapshot.value as Map<dynamic, dynamic>?;
 
-      final token = await user.getIdToken();
-      final url = Uri.parse('$baseUrl/orders.json?orderBy="userId"&equalTo="$userId"&auth=$token');
-      print("📡 Appel URL: $url");
+      if (data == null) return [];
 
-      final response = await http.get(url);
-      print("📥 Réponse Firebase: ${response.body}");
-
-      if (response.statusCode == 200) {
-        final Map<String, dynamic>? data = json.decode(response.body);
-        if (data == null || data.isEmpty) {
-          print("⚠️ Aucune commande trouvée pour cet utilisateur.");
-          return [];
-        }
-
-        final orders = data.entries.map((entry) {
-          return Order.fromJson({...entry.value, 'id': entry.key});
-        }).toList()
-          ..sort((a, b) => b.orderDate.compareTo(a.orderDate));
-
-        print("✅ ${orders.length} commandes récupérées pour l'utilisateur $userId");
-        return orders;
-      } else {
-        throw Exception('Erreur serveur: ${response.statusCode} - ${response.body}');
-      }
+      return data.entries.map((entry) {
+        return Order.fromJson({
+          'id': entry.key,
+          ...Map<String, dynamic>.from(entry.value),
+        });
+      }).toList()
+        ..sort((a, b) => b.orderDate.compareTo(a.orderDate));
     } catch (e) {
-      print("❌ Échec de récupération des commandes: ${e.toString()}");
-      throw Exception('Échec de récupération des commandes: ${e.toString()}');
+      if (kDebugMode) {
+        print('Error fetching user orders: $e');
+      }
+      rethrow;
     }
   }
 }

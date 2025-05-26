@@ -4,7 +4,7 @@ pluginManagement {
         file("local.properties").withInputStream { properties.load(it) }
         def path = properties.getProperty("flutter.sdk")
         if (path == null) {
-            throw new GradleException("flutter.sdk not set in local.properties")
+            throw new Exception("flutter.sdk not set in local.properties") 
         }
         return path
     }.call()
@@ -17,8 +17,6 @@ pluginManagement {
         gradlePluginPortal()
     }
 }
-
-
 
 plugins {
     id 'dev.flutter.flutter-plugin-loader' version '1.0.0'

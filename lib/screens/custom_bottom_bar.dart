@@ -1,4 +1,3 @@
-import 'package:app_qstocker/services/product_service.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'home_screen.dart';
@@ -6,6 +5,7 @@ import 'scan_screen.dart';
 import 'history_screen.dart';
 import 'profile_screen.dart';
 import 'products_screen.dart';
+import '../services/product_service.dart';
 
 Widget buildCustomBottomBar(BuildContext context, int currentIndex) {
   return Container(
@@ -38,16 +38,15 @@ Widget buildCustomBottomBar(BuildContext context, int currentIndex) {
                 currentIndex: currentIndex,
                 targetIndex: 0,
               ),
-             // Update the ProductsScreen navigation to include required parameter
-_buildBottomNavItem(
-  context: context,
-  icon: Icons.inventory_2_rounded,
-  label: 'Produits',
-  isActive: currentIndex == 1,
-  destination: ProductsScreen(productService: Provider.of<ProductService>(context, listen: false)),
-  currentIndex: currentIndex,
-  targetIndex: 1,
-),
+              _buildBottomNavItem(
+                context: context,
+                icon: Icons.inventory_2_rounded,
+                label: 'Produits',
+                isActive: currentIndex == 1,
+                destination: ProductsScreen(productService: Provider.of<ProductService>(context, listen: false)),
+                currentIndex: currentIndex,
+                targetIndex: 1,
+              ),
               const SizedBox(width: 64), // Espace pour le bouton Scan
               _buildBottomNavItem(
                 context: context,

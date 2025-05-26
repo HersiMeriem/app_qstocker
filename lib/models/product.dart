@@ -17,6 +17,8 @@ class Product {
   final bool? isAuthentic;
   final DateTime? createdAt;
   final DateTime? updatedAt;
+  final int stock;
+  final double sellingPrice;
 
   Product({
     required this.id,
@@ -31,12 +33,14 @@ class Product {
     required this.costPrice,
     required this.origin,
     required this.status,
-    required this.unitPrice, 
+    required this.unitPrice,
     required this.perfumeType,
     this.promotion,
     this.isAuthentic,
     this.createdAt,
     this.updatedAt,
+    required this.stock,
+    required this.sellingPrice,
   });
 
   factory Product.fromJson(Map<dynamic, dynamic> json) {
@@ -53,7 +57,7 @@ class Product {
       costPrice: (json['costPrice'] ?? 0).toDouble(),
       origin: json['origin'] ?? '',
       status: json['status'] ?? 'active',
-      unitPrice: (json['unitPrice'] ?? 0).toDouble(), // Remplacement de prixDeVente par unitPrice
+      unitPrice: (json['unitPrice'] ?? 0).toDouble(),
       perfumeType: json['perfumeType'] ?? '',
       promotion: json['promotion'] != null
           ? Promotion.fromJson(json['promotion'])
@@ -65,14 +69,20 @@ class Product {
       updatedAt: json['updatedAt'] != null
           ? DateTime.parse(json['updatedAt'])
           : null,
+      stock: json['stock'] ?? 0,
+      sellingPrice: (json['sellingPrice'] ?? json['unitPrice'] ?? 0).toDouble(),
     );
   }
 
   double get currentPrice {
-    if (status == 'promotion' && promotion != null && _isPromotionActive()) {
-      return unitPrice * (1 - (promotion!.discountPercentage / 100)); // Remplacement de prixDeVente par unitPrice
+    if (isOnPromotion) {
+      return sellingPrice * (1 - (promotion!.discountPercentage / 100));
     }
-    return unitPrice; 
+    return sellingPrice;
+  }
+
+  bool get isOnPromotion {
+    return status == 'promotion' && promotion != null && _isPromotionActive();
   }
 
   bool _isPromotionActive() {
@@ -81,6 +91,14 @@ class Product {
     final start = DateTime.parse(promotion!.startDate);
     final end = DateTime.parse(promotion!.endDate);
     return now.isAfter(start) && now.isBefore(end);
+  }
+
+  bool get isAvailable => stock > 0 && status != 'out-of-stock';
+
+  String get availabilityStatus {
+    if (stock <= 0) return 'Rupture de stock';
+    if (status == 'inactive') return 'Produit indisponible';
+    return 'Disponible';
   }
 
   Map<String, dynamic> toJson() {
@@ -103,6 +121,8 @@ class Product {
       'isAuthentic': isAuthentic,
       'createdAt': createdAt?.toIso8601String(),
       'updatedAt': updatedAt?.toIso8601String(),
+      'stock': stock,
+      'sellingPrice': sellingPrice,
     };
   }
 }
@@ -132,5 +152,12 @@ class Promotion {
       'endDate': endDate,
       'discountPercentage': discountPercentage,
     };
+  }
+
+  bool get isActive {
+    final now = DateTime.now();
+    final start = DateTime.parse(startDate);
+    final end = DateTime.parse(endDate);
+    return now.isAfter(start) && now.isBefore(end);
   }
 }

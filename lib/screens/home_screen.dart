@@ -6,7 +6,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import '../services/auth_service.dart';
 import 'scan_screen.dart';
 import 'products_screen.dart';
-import 'custom_bottom_bar.dart';
+
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -26,9 +26,9 @@ class HomeScreen extends StatelessWidget {
             children: [
               const Text('Pour toute assistance, veuillez contacter notre équipe :'),
               const SizedBox(height: 16),
-              _buildContactOption(Icons.email, 'support@qstocker.com', context),
+              _buildContactOption(Icons.email, 'contact.qstocker@.com', context),
               const SizedBox(height: 8),
-              _buildContactOption(Icons.phone, '+33 1 23 45 67 89', context),
+              _buildContactOption(Icons.phone, '+216 123 654 987', context),
               const SizedBox(height: 16),
               const Text('Lundi - Vendredi : 9h - 18h'),
             ],
