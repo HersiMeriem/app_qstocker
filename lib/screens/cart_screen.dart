@@ -1,4 +1,4 @@
-import 'dart:convert'; // Assurez-vous d'importer cette bibliothèque pour base64Decode
+import 'dart:convert'; 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../services/cart_service.dart';

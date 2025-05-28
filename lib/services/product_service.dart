@@ -174,57 +174,57 @@ class ProductService {
     }
   }
 
-Future<Product?> fetchProductByQrCode(String qrCode) async {
-  try {
-    final cleanedQrCode = qrCode.trim();
+  Future<Product?> fetchProductByQrCode(String qrCode) async {
+    try {
+      final cleanedQrCode = qrCode.trim();
 
-    final qrSnapshot = await _productsRef
-        .orderByChild('qrCode')
-        .equalTo(cleanedQrCode)
-        .once();
+      final qrSnapshot = await _productsRef
+          .orderByChild('qrCode')
+          .equalTo(cleanedQrCode)
+          .once();
 
-    if (qrSnapshot.snapshot.value != null) {
-      final data = qrSnapshot.snapshot.value as Map<dynamic, dynamic>;
-      final productEntry = data.entries.first;
-      return await _createProductFromEntry(productEntry);
+      if (qrSnapshot.snapshot.value != null) {
+        final data = qrSnapshot.snapshot.value as Map<dynamic, dynamic>;
+        final productEntry = data.entries.first;
+        return await _createProductFromEntry(productEntry);
+      }
+
+      final productSnapshot = await _productsRef.child(cleanedQrCode).once();
+      if (productSnapshot.snapshot.value != null) {
+        return await _createProductFromEntry(
+          MapEntry(cleanedQrCode, productSnapshot.snapshot.value),
+        );
+      }
+
+      return null;
+    } catch (e) {
+      print('Error fetching product by QR code: $e');
+      throw Exception('Erreur de chargement du produit par QR code');
     }
-
-    final productSnapshot = await _productsRef.child(cleanedQrCode).once();
-    if (productSnapshot.snapshot.value != null) {
-      return await _createProductFromEntry(
-        MapEntry(cleanedQrCode, productSnapshot.snapshot.value),
-      );
-    }
-
-    return null;
-  } catch (e) {
-    print('Error fetching product by QR code: $e');
-    throw Exception('Erreur de chargement du produit par QR code');
   }
-}
 
-Future<Product> _createProductFromEntry(MapEntry<dynamic, dynamic> entry) async {
-  final productId = entry.key as String;
-  final productData = {...entry.value as Map};
+  Future<Product> _createProductFromEntry(MapEntry<dynamic, dynamic> entry) async {
+    final productId = entry.key as String;
+    final productData = {...entry.value as Map};
 
-  final stockSnapshot = await _stockRef.child(productId).once();
-  final stockData = stockSnapshot.snapshot.value as Map? ?? {};
+    final stockSnapshot = await _stockRef.child(productId).once();
+    final stockData = stockSnapshot.snapshot.value as Map? ?? {};
 
-  final sellingPrice = (stockData['sellingPrice'] ??
-                        stockData['prixDeVente'] ??
-                        productData['sellingPrice'] ??
-                        productData['unitPrice'] ??
-                        0).toDouble();
+    final sellingPrice = (stockData['sellingPrice'] ??
+                          stockData['prixDeVente'] ??
+                          productData['sellingPrice'] ??
+                          productData['unitPrice'] ??
+                          0).toDouble();
 
-  final stockQuantity = (stockData['quantity'] ?? stockData['quantite'] ?? 0) as int;
+    final stockQuantity = (stockData['quantity'] ?? stockData['quantite'] ?? 0) as int;
 
-  return Product.fromJson({
-    ...productData,
-    'id': productId,
-    'stock': stockQuantity,
-    'sellingPrice': sellingPrice,
-  });
-}
+    return Product.fromJson({
+      ...productData,
+      'id': productId,
+      'stock': stockQuantity,
+      'sellingPrice': sellingPrice,
+    });
+  }
 
   Future<void> addToHistory(Product product) async {
     if (!_isHistoryLoaded) await _loadScanHistory();
@@ -237,7 +237,7 @@ Future<Product> _createProductFromEntry(MapEntry<dynamic, dynamic> entry) async 
     await _scanHistoryRef.child(product.id).set({
       ...product.toJson(),
       'scanDate': DateTime.now().toIso8601String(),
-      'isAuthentic': product.isAuthentic ?? false, // Sauvegarder explicitement le statut
+      'isAuthentic': product.isAuthentic ?? false,
     });
   }
 

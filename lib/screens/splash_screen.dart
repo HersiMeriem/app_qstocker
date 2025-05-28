@@ -29,7 +29,7 @@ class SplashScreen extends StatelessWidget {
                     ),
                   ),
                   TextSpan(
-                    text: 'trace',
+                    text: 'Parfy',
                     style: TextStyle(
                       fontSize: 32,
                       fontWeight: FontWeight.bold,

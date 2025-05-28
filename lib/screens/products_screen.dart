@@ -15,8 +15,13 @@ import 'profile_screen.dart';
 
 class ProductsScreen extends StatefulWidget {
   final ProductService productService;
+  final String? initialCategory;
 
-  const ProductsScreen({super.key, required this.productService});
+  const ProductsScreen({
+    super.key,
+    required this.productService,
+    this.initialCategory,
+  });
 
   @override
   _ProductsScreenState createState() => _ProductsScreenState();
@@ -33,6 +38,7 @@ class _ProductsScreenState extends State<ProductsScreen> {
   @override
   void initState() {
     super.initState();
+    _selectedCategory = widget.initialCategory ?? 'Tous';
     _loadProducts();
   }
 
@@ -43,7 +49,7 @@ class _ProductsScreenState extends State<ProductsScreen> {
       final products = await _productsFuture;
       setState(() {
         _products = products;
-        _filteredProducts = products;
+        _filterProducts();
         _isLoading = false;
       });
     } catch (e) {
@@ -206,7 +212,7 @@ class _ProductsScreenState extends State<ProductsScreen> {
           ],
         ),
       ),
-      bottomNavigationBar: buildCustomBottomBar(context, 1), // Ajoutez la barre de navigation ici
+      bottomNavigationBar: buildCustomBottomBar(context, 1),
     );
   }
 
@@ -306,7 +312,7 @@ Widget buildCustomBottomBar(BuildContext context, int currentIndex) {
                 icon: Icons.home_rounded,
                 label: 'Accueil',
                 isActive: currentIndex == 0,
-                destination: HomeScreen(),
+                destination: const HomeScreen(),
                 currentIndex: currentIndex,
                 targetIndex: 0,
               ),
@@ -319,13 +325,13 @@ Widget buildCustomBottomBar(BuildContext context, int currentIndex) {
                 currentIndex: currentIndex,
                 targetIndex: 1,
               ),
-              const SizedBox(width: 64), // Espace pour le bouton Scan
+              const SizedBox(width: 64),
               _buildBottomNavItem(
                 context: context,
                 icon: Icons.history_rounded,
                 label: 'Historique',
                 isActive: currentIndex == 2,
-                destination: HistoryScreen(),
+                destination: const HistoryScreen(),
                 currentIndex: currentIndex,
                 targetIndex: 2,
               ),
@@ -334,7 +340,7 @@ Widget buildCustomBottomBar(BuildContext context, int currentIndex) {
                 icon: Icons.person_rounded,
                 label: 'Profil',
                 isActive: currentIndex == 3,
-                destination: ProfileScreen(),
+                destination: const ProfileScreen(),
                 currentIndex: currentIndex,
                 targetIndex: 3,
               ),
@@ -342,7 +348,7 @@ Widget buildCustomBottomBar(BuildContext context, int currentIndex) {
           ),
         ),
         Positioned(
-          top: -10, // abaissé légèrement
+          top: -10,
           left: 0,
           right: 0,
           child: Center(
@@ -351,7 +357,7 @@ Widget buildCustomBottomBar(BuildContext context, int currentIndex) {
                 Navigator.pushReplacement(
                   context,
                   PageRouteBuilder(
-                    pageBuilder: (_, __, ___) => ScanScreen(),
+                    pageBuilder: (_, __, ___) => const ScanScreen(),
                     transitionDuration: Duration.zero,
                   ),
                 );

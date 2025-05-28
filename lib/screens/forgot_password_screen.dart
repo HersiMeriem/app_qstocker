@@ -59,7 +59,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                             ),
                           ),
                           TextSpan(
-                            text: 'trace',
+                            text: 'Parfy',
                             style: TextStyle(
                               fontSize: 20,
                               fontWeight: FontWeight.bold,

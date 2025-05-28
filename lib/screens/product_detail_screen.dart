@@ -232,54 +232,54 @@ class ProductDetailScreen extends StatelessWidget {
     }
   }
 
-Widget _buildPriceSection(BuildContext context) {
-  return Column(
-    crossAxisAlignment: CrossAxisAlignment.start,
-    children: [
-      Row(
-        children: [
-          if (product.isOnPromotion)
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-              decoration: BoxDecoration(
-                color: Colors.red,
-                borderRadius: BorderRadius.circular(4),
-              ),
-              child: Text(
-                '-${product.promotion!.discountPercentage}%',
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontWeight: FontWeight.bold,
+  Widget _buildPriceSection(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            if (product.isOnPromotion)
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                decoration: BoxDecoration(
+                  color: Colors.red,
+                  borderRadius: BorderRadius.circular(4),
+                ),
+                child: Text(
+                  '-${product.promotion!.discountPercentage}%',
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
               ),
+            const SizedBox(width: 12),
+            Text(
+              '${product.currentPrice.toStringAsFixed(3)} DT',
+              style: TextStyle(
+                fontSize: 28,
+                fontWeight: FontWeight.bold,
+                color: product.isOnPromotion
+                    ? Colors.red
+                    : Theme.of(context).colorScheme.primary,
+              ),
             ),
-          const SizedBox(width: 12),
-          Text(
-            '${product.currentPrice.toStringAsFixed(3)} DT',
-            style: TextStyle(
-              fontSize: 28,
-              fontWeight: FontWeight.bold,
-              color: product.isOnPromotion
-                  ? Colors.red
-                  : Theme.of(context).colorScheme.primary,
-            ),
-          ),
-        ],
-      ),
-      if (product.isOnPromotion)
-        Padding(
-          padding: const EdgeInsets.only(top: 4),
-          child: Text(
-            'Au lieu de ${product.sellingPrice.toStringAsFixed(3)} DT',
-            style: TextStyle(
-              color: Colors.grey,
-              decoration: TextDecoration.lineThrough,
-            ),
-          ),
+          ],
         ),
-    ],
-  );
-}
+        if (product.isOnPromotion)
+          Padding(
+            padding: const EdgeInsets.only(top: 4),
+            child: Text(
+              'Au lieu de ${product.sellingPrice.toStringAsFixed(3)} DT',
+              style: TextStyle(
+                color: Colors.grey,
+                decoration: TextDecoration.lineThrough,
+              ),
+            ),
+          ),
+      ],
+    );
+  }
 
   Widget _buildInfoRow(IconData icon, String label, String value) {
     return Padding(

@@ -19,6 +19,7 @@ class Product {
   final DateTime? updatedAt;
   final int stock;
   final double sellingPrice;
+  
 
   Product({
     required this.id,

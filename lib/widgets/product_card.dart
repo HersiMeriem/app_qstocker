@@ -16,144 +16,149 @@ class ProductCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      elevation: 3,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
-      ),
-      child: Stack(
-        children: [
-          InkWell(
-            borderRadius: BorderRadius.circular(16),
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => ProductDetailScreen(product: product),
-                ),
-              );
-            },
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                Expanded(
-                  child: ClipRRect(
-                    borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
-                    child: Hero(
-                      tag: 'product-image-${product.id}',
-                      child: Container(
-                        decoration: BoxDecoration(
-                          border: Border.all(color: Colors.grey[300]!, width: 1),
-                          borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
-                        ),
-                        child: product.imageUrl != null
-                            ? _buildImage(product.imageUrl!)
-                            : Container(
-                                color: Colors.grey[200],
-                                child: const Center(
-                                  child: Icon(Icons.image, size: 50, color: Colors.grey),
+    return Semantics(
+      label: 'Carte du produit ${product.name}',
+      child: Card(
+        elevation: 3,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+        ),
+        child: Stack(
+          children: [
+            InkWell(
+              borderRadius: BorderRadius.circular(16),
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => ProductDetailScreen(product: product),
+                  ),
+                );
+              },
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Expanded(
+                    child: ClipRRect(
+                      borderRadius: const BorderRadius.vertical(
+                          top: Radius.circular(16)),
+                      child: Hero(
+                        tag: 'product-image-${product.id}',
+                        child: Container(
+                          decoration: BoxDecoration(
+                            border: Border.all(
+                                color: Colors.grey[300]!, width: 1),
+                            borderRadius: const BorderRadius.vertical(
+                                top: Radius.circular(16)),
+                          ),
+                          child: product.imageUrl != null
+                              ? _buildImage(product.imageUrl!)
+                              : Container(
+                                  color: Colors.grey[200],
+                                  child: const Center(
+                                    child: Icon(Icons.image,
+                                        size: 50, color: Colors.grey),
+                                  ),
                                 ),
-                              ),
+                        ),
                       ),
                     ),
                   ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.all(10),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        product.name,
-                        style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        product.brand,
-                        style: Theme.of(context).textTheme.bodySmall,
-                      ),
-                      const SizedBox(height: 8),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                            '${product.currentPrice.toStringAsFixed(3)} DT',
-                            style: TextStyle(
-                              color: Theme.of(context).colorScheme.primary,
-                              fontWeight: FontWeight.bold,
-                              decoration: product.isOnPromotion ? TextDecoration.lineThrough : null,
+                  Padding(
+                    padding: const EdgeInsets.all(10),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          product.name,
+                          style: Theme.of(context)
+                              .textTheme
+                              .titleMedium
+                              ?.copyWith(fontWeight: FontWeight.bold),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          product.brand,
+                          style: Theme.of(context).textTheme.bodySmall,
+                        ),
+                        const SizedBox(height: 8),
+                        _buildPriceSection(context),
+                        const SizedBox(height: 8),
+                        SizedBox(
+                          width: double.infinity,
+                          child: ElevatedButton.icon(
+                            key: const Key('addToCartButton'),
+                            onPressed: product.isAvailable
+                                ? onAddToCart
+                                : null,
+                            icon: const Icon(Icons.add_shopping_cart,
+                                size: 18),
+                            label: const Text('Ajouter'),
+                            style: ElevatedButton.styleFrom(
+                              shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(10)),
+                              backgroundColor:
+                                  Theme.of(context).colorScheme.secondary,
                             ),
-                          ),
-                          if (product.isOnPromotion)
-                            Text(
-                              '${(product.sellingPrice * (1 - (product.promotion!.discountPercentage / 100))).toStringAsFixed(3)} DT',
-                              style: const TextStyle(color: Colors.red, fontWeight: FontWeight.bold),
-                            ),
-                        ],
-                      ),
-                      const SizedBox(height: 8),
-                      SizedBox(
-                        width: double.infinity,
-                        child: ElevatedButton.icon(
-                          onPressed: product.isAvailable ? onAddToCart : null,
-                          icon: const Icon(Icons.add_shopping_cart, size: 18),
-                          label: const Text('Ajouter'),
-                          style: ElevatedButton.styleFrom(
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                            backgroundColor: Theme.of(context).colorScheme.secondary,
                           ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
+                ],
+              ),
+            ),
+            if (!product.isAvailable)
+              const Positioned(
+                top: 8,
+                right: 8,
+                child: _StockStatusBadge(
+                  text: 'RUPTURE',
+                  color: Colors.red,
                 ),
-              ],
+              ),
+            if (product.isOnPromotion)
+              Positioned(
+                top: 8,
+                left: 8,
+                child: _StockStatusBadge(
+                  text:
+                      '-${product.promotion!.discountPercentage}%',
+                  color: Colors.green,
+                ),
+              ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildPriceSection(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        if (product.isOnPromotion)
+          Text(
+            '${product.sellingPrice.toStringAsFixed(3)} DT',
+            style: const TextStyle(
+              fontSize: 14,
+              color: Colors.grey,
+              decoration: TextDecoration.lineThrough,
             ),
           ),
-          if (!product.isAvailable)
-            Positioned(
-              top: 8,
-              right: 8,
-              child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                decoration: BoxDecoration(
-                  color: Colors.red.withOpacity(0.9),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: const Text(
-                  'RUPTURE',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 10,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
-            ),
-          if (product.isOnPromotion)
-            Positioned(
-              top: 8,
-              left: 8,
-              child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                decoration: BoxDecoration(
-                  color: Colors.green.withOpacity(0.9),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Text(
-                  '-${product.promotion!.discountPercentage}%',
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 10,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
-            ),
-        ],
-      ),
+        Text(
+          '${product.currentPrice.toStringAsFixed(3)} DT',
+          style: TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.bold,
+            color: product.isOnPromotion
+                ? Colors.red
+                : Theme.of(context).colorScheme.primary,
+          ),
+        ),
+      ],
     );
   }
 
@@ -169,7 +174,8 @@ class ProductCard extends StatelessWidget {
         return Container(
           color: Colors.grey[200],
           child: const Center(
-            child: Icon(Icons.broken_image, size: 50, color: Colors.grey),
+            child: Icon(Icons.broken_image,
+                size: 50, color: Colors.grey),
           ),
         );
       }
@@ -191,5 +197,34 @@ class ProductCard extends StatelessWidget {
         ),
       );
     }
+  }
+}
+
+class _StockStatusBadge extends StatelessWidget {
+  final String text;
+  final Color color;
+
+  const _StockStatusBadge({
+    required this.text,
+    required this.color,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      decoration: BoxDecoration(
+        color: color.withOpacity(0.9),
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Text(
+        text,
+        style: const TextStyle(
+          color: Colors.white,
+          fontSize: 10,
+          fontWeight: FontWeight.bold,
+        ),
+      ),
+    );
   }
 }
