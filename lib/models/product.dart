@@ -74,6 +74,52 @@ class Product {
     );
   }
 
+  Product copyWith({
+    String? id,
+    String? name,
+    String? qrCode,
+    String? description,
+    String? olfactiveFamily,
+    String? brand,
+    String? category,
+    String? imageUrl,
+    String? volume,
+    double? costPrice,
+    String? origin,
+    String? status,
+    double? unitPrice,
+    String? perfumeType,
+    Promotion? promotion,
+    bool? isAuthentic,
+    DateTime? createdAt,
+    DateTime? updatedAt,
+    int? stock,
+    double? sellingPrice,
+  }) {
+    return Product(
+      id: id ?? this.id,
+      name: name ?? this.name,
+      qrCode: qrCode ?? this.qrCode,
+      description: description ?? this.description,
+      olfactiveFamily: olfactiveFamily ?? this.olfactiveFamily,
+      brand: brand ?? this.brand,
+      category: category ?? this.category,
+      imageUrl: imageUrl ?? this.imageUrl,
+      volume: volume ?? this.volume,
+      costPrice: costPrice ?? this.costPrice,
+      origin: origin ?? this.origin,
+      status: status ?? this.status,
+      unitPrice: unitPrice ?? this.unitPrice,
+      perfumeType: perfumeType ?? this.perfumeType,
+      promotion: promotion ?? this.promotion,
+      isAuthentic: isAuthentic ?? this.isAuthentic,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+      stock: stock ?? this.stock,
+      sellingPrice: sellingPrice ?? this.sellingPrice,
+    );
+  }
+
   double get currentPrice {
     if (isOnPromotion) {
       return sellingPrice * (1 - (promotion!.discountPercentage / 100));

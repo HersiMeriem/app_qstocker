@@ -71,7 +71,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       ),
                     ),
                     TextSpan(
-                      text: 'Stocker',
+                      text: 'trace',
                       style: TextStyle(
                         fontSize: 22,
                         fontWeight: FontWeight.bold,

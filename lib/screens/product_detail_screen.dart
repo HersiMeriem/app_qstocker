@@ -140,13 +140,9 @@ class ProductDetailScreen extends StatelessWidget {
                   ),
                   const SizedBox(height: 24),
 
-                  // Product details
-                  _buildInfoRow(Icons.category, 'Catégorie', product.category),
-                  if (product.olfactiveFamily?.isNotEmpty ?? false)
-                    _buildInfoRow(Icons.local_florist, 'Famille olfactive', product.olfactiveFamily!),
-                  _buildInfoRow(Icons.style, 'Type de parfum', product.perfumeType),
+                  // Product details - Only keeping Origin and Volume
                   _buildInfoRow(Icons.public, 'Origine', product.origin),
-                  _buildInfoRow(Icons.straighten, 'Volume', product.volume),
+                  _buildInfoRow(Icons.local_drink, 'Volume', product.volume), // Changed icon to local_drink (flacon)
                   const SizedBox(height: 24),
 
                   // Description
@@ -236,54 +232,54 @@ class ProductDetailScreen extends StatelessWidget {
     }
   }
 
-  Widget _buildPriceSection(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          children: [
-            if (product.isOnPromotion)
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                decoration: BoxDecoration(
-                  color: Colors.red,
-                  borderRadius: BorderRadius.circular(4),
-                ),
-                child: Text(
-                  '-${product.promotion!.discountPercentage}%',
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
+Widget _buildPriceSection(BuildContext context) {
+  return Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      Row(
+        children: [
+          if (product.isOnPromotion)
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+              decoration: BoxDecoration(
+                color: Colors.red,
+                borderRadius: BorderRadius.circular(4),
               ),
-            const SizedBox(width: 12),
-            Text(
-              '${product.currentPrice.toStringAsFixed(3)} DT',
-              style: TextStyle(
-                fontSize: 28,
-                fontWeight: FontWeight.bold,
-                color: product.isOnPromotion
-                    ? Colors.red
-                    : Theme.of(context).colorScheme.primary,
+              child: Text(
+                '-${product.promotion!.discountPercentage}%',
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
             ),
-          ],
-        ),
-        if (product.isOnPromotion)
-          Padding(
-            padding: const EdgeInsets.only(top: 4),
-            child: Text(
-              'Au lieu de ${product.sellingPrice.toStringAsFixed(3)} DT',
-              style: TextStyle(
-                color: Colors.grey,
-                decoration: TextDecoration.lineThrough,
-              ),
+          const SizedBox(width: 12),
+          Text(
+            '${product.currentPrice.toStringAsFixed(3)} DT',
+            style: TextStyle(
+              fontSize: 28,
+              fontWeight: FontWeight.bold,
+              color: product.isOnPromotion
+                  ? Colors.red
+                  : Theme.of(context).colorScheme.primary,
             ),
           ),
-      ],
-    );
-  }
+        ],
+      ),
+      if (product.isOnPromotion)
+        Padding(
+          padding: const EdgeInsets.only(top: 4),
+          child: Text(
+            'Au lieu de ${product.sellingPrice.toStringAsFixed(3)} DT',
+            style: TextStyle(
+              color: Colors.grey,
+              decoration: TextDecoration.lineThrough,
+            ),
+          ),
+        ),
+    ],
+  );
+}
 
   Widget _buildInfoRow(IconData icon, String label, String value) {
     return Padding(

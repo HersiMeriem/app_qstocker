@@ -65,12 +65,6 @@ class _ProductsScreenState extends State<ProductsScreen> {
             (product.olfactiveFamily?.toLowerCase() ?? '').contains(_searchQuery.toLowerCase());
         return matchesCategory && matchesSearch;
       }).toList();
-
-      _filteredProducts.sort((a, b) {
-        if (a.isAvailable && !b.isAvailable) return -1;
-        if (!a.isAvailable && b.isAvailable) return 1;
-        return 0;
-      });
     });
   }
 
@@ -212,7 +206,7 @@ class _ProductsScreenState extends State<ProductsScreen> {
           ],
         ),
       ),
-      bottomNavigationBar: buildCustomBottomBar(context, 1),
+      bottomNavigationBar: buildCustomBottomBar(context, 1), // Ajoutez la barre de navigation ici
     );
   }
 
@@ -325,7 +319,7 @@ Widget buildCustomBottomBar(BuildContext context, int currentIndex) {
                 currentIndex: currentIndex,
                 targetIndex: 1,
               ),
-              const SizedBox(width: 64),
+              const SizedBox(width: 64), // Espace pour le bouton Scan
               _buildBottomNavItem(
                 context: context,
                 icon: Icons.history_rounded,
@@ -348,7 +342,7 @@ Widget buildCustomBottomBar(BuildContext context, int currentIndex) {
           ),
         ),
         Positioned(
-          top: -10,
+          top: -10, // abaissé légèrement
           left: 0,
           right: 0,
           child: Center(

@@ -28,6 +28,7 @@ dependencies:
   animate_do: ^3.0.2 # pour les animations
   image_picker: ^0.8.7+3
   intl: ^0.20.2 
+  mobile_scanner: ^3.4.1 
   flutter_localizations: 
     sdk: flutter 
   curved_navigation_bar: 1.0.6

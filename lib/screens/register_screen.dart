@@ -253,7 +253,7 @@ Future<void> _register() async {
                     ),
                   ),
                   TextSpan(
-                    text: 'Stocker',
+                    text: 'trace',
                     style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.bold,

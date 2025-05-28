@@ -96,7 +96,7 @@ class HomeScreen extends StatelessWidget {
                         ),
                       ),
                       TextSpan(
-                        text: 'Stocker',
+                        text: 'trace',
                         style: TextStyle(
                           fontSize: 22,
                           fontWeight: FontWeight.bold,
@@ -171,7 +171,7 @@ class HomeScreen extends StatelessWidget {
                       ],
                     ),
                     child: const Text(
-                      'Bienvenue sur QStocker ! Plongez dans l\'univers des parfums authentiques et raffinés.',
+                      'Bienvenue sur Qtrace ! Plongez dans l\'univers des parfums authentiques et raffinés.',
                       style: TextStyle(
                         fontSize: 16,
                         color: Color(0xFF1e4868),

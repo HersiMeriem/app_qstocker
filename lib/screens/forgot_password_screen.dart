@@ -33,7 +33,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Ligne avec flèche + logo + QStocker
+                // Ligne avec flèche + logo + Qtrace
                 Row(
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
@@ -59,7 +59,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                             ),
                           ),
                           TextSpan(
-                            text: 'Stocker',
+                            text: 'trace',
                             style: TextStyle(
                               fontSize: 20,
                               fontWeight: FontWeight.bold,
