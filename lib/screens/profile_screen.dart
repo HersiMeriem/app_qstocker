@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:intl/intl.dart';
-import 'package:image_picker/image_picker.dart';
 import 'dart:io';
 import '../services/auth_service.dart';
 import 'custom_bottom_bar.dart';
@@ -22,7 +21,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
   bool _notificationsEnabled = true;
   String _selectedLanguage = 'Français';
   File? _profileImage;
-  final ImagePicker _picker = ImagePicker();
 
   @override
   void initState() {
@@ -62,31 +60,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
     }
   }
 
-  Future<void> _pickImage() async {
-    final pickedFile = await _picker.pickImage(source: ImageSource.gallery);
-    if (pickedFile != null) {
-      try {
-        final authService = Provider.of<AuthService>(context, listen: false);
-        final downloadUrl = await authService.uploadProfileImage(
-          File(pickedFile.path),
-        );
-        await authService.updateProfilePhoto(downloadUrl);
-
-        setState(() {
-          _profileImage = File(pickedFile.path);
-        });
-
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Photo de profil mise à jour')),
-        );
-      } catch (e) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text('Erreur: ${e.toString()}')));
-      }
-    }
-  }
-
   @override
   void dispose() {
     _nameController.dispose();
@@ -114,17 +87,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder:
-                      (context) => SettingsScreen(
-                        language: _selectedLanguage,
-                        notificationsEnabled: _notificationsEnabled,
-                        onSettingsChanged: (language, notifications) {
-                          setState(() {
-                            _selectedLanguage = language;
-                            _notificationsEnabled = notifications;
-                          });
-                        },
-                      ),
+                  builder: (context) => SettingsScreen(
+                    language: _selectedLanguage,
+                    notificationsEnabled: _notificationsEnabled,
+                    onSettingsChanged: (language, notifications) {
+                      setState(() {
+                        _selectedLanguage = language;
+                        _notificationsEnabled = notifications;
+                      });
+                    },
+                  ),
                 ),
               );
             },
@@ -151,45 +123,23 @@ class _ProfileScreenState extends State<ProfileScreen> {
   Widget _buildProfileHeader(User? user) {
     return Column(
       children: [
-        GestureDetector(
-          onTap: _pickImage,
-          child: Stack(
-            alignment: Alignment.bottomRight,
-            children: [
-          CircleAvatar(
-  radius: 50,
-  backgroundColor: const Color(0xFF548CB8),
-  backgroundImage: _profileImage != null
-      ? FileImage(_profileImage!)
-      : user?.photoURL != null
-          ? NetworkImage(user!.photoURL!)
-          : null,
-  child: _profileImage == null && user?.photoURL == null
-      ? Text(
-          _getInitial(user?.displayName, user?.email),
-          style: const TextStyle(
-            fontSize: 40,
-            color: Colors.white,
-          ),
-        )
-      : null,
-),
-
-              Container(
-                padding: const EdgeInsets.all(6),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  shape: BoxShape.circle,
-                  border: Border.all(color: const Color(0xFF548CB8), width: 2),
-                ),
-                child: const Icon(
-                  Icons.edit,
-                  size: 18,
-                  color: Color(0xFF548CB8),
-                ),
-              ),
-            ],
-          ),
+        CircleAvatar(
+          radius: 50,
+          backgroundColor: const Color(0xFF548CB8),
+          backgroundImage: _profileImage != null
+              ? FileImage(_profileImage!)
+              : user?.photoURL != null
+                  ? NetworkImage(user!.photoURL!)
+                  : null,
+          child: _profileImage == null && user?.photoURL == null
+              ? Text(
+                  _getInitial(user?.displayName, user?.email),
+                  style: const TextStyle(
+                    fontSize: 40,
+                    color: Colors.white,
+                  ),
+                )
+              : null,
         ),
         const SizedBox(height: 16),
         Text(
@@ -233,29 +183,25 @@ class _ProfileScreenState extends State<ProfileScreen> {
               icon: Icons.person,
               title: 'Nom complet',
               value: user?.displayName ?? 'Ajouter un nom',
-              onTap:
-                  () => _showEditDialog(
-                    context,
-                    'Nom complet',
-                    _nameController,
-                    (value) async {
-                      await authService.updateDisplayName(value);
-                      setState(() {});
-                    },
-                  ),
+              onTap: () => _showEditDialog(
+                context,
+                'Nom complet',
+                _nameController,
+                (value) async {
+                  await authService.updateDisplayName(value);
+                  setState(() {});
+                },
+              ),
             ),
             const Divider(),
-            _buildInfoTile(
-              icon: Icons.email,
-              title: 'Email',
-              value: user?.email ?? '',
-              onTap:
-                  () => _showEditDialog(context, 'Email', _emailController, (
-                    value,
-                  ) async {
-                    await authService.updateEmail(value);
-                    setState(() {});
-                  }),
+            ListTile(
+              contentPadding: EdgeInsets.zero,
+              leading: const Icon(Icons.email, color: Color(0xFF548CB8)),
+              title: const Text(
+                'Email',
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
+              subtitle: Text(user?.email ?? ''),
             ),
             const Divider(),
             ListTile(
@@ -305,15 +251,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
             title: const Text('Changer le mot de passe'),
             trailing: const Icon(Icons.chevron_right),
             onTap: () => _showPasswordChangeDialog(context, authService),
-          ),
-          const Divider(height: 1),
-          ListTile(
-            leading: const Icon(Icons.delete, color: Colors.red),
-            title: const Text(
-              'Supprimer le compte',
-              style: TextStyle(color: Colors.red),
-            ),
-            onTap: () => _showDeleteAccountDialog(context, authService),
           ),
           const Divider(height: 1),
           ListTile(
@@ -442,8 +379,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
                       content: Text(
-                        'Le champ $fieldName ne peut pas être vide',
-                      ),
+                        'Le champ $fieldName ne peut pas être vide'),
                     ),
                   );
                   return;
@@ -470,109 +406,109 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
-Future<void> _showPasswordChangeDialog(
-  BuildContext context,
-  AuthService authService,
-) async {
-  final oldPasswordController = TextEditingController();
-  final newPasswordController = TextEditingController();
-  final confirmPasswordController = TextEditingController();
+  Future<void> _showPasswordChangeDialog(
+    BuildContext context,
+    AuthService authService,
+  ) async {
+    final oldPasswordController = TextEditingController();
+    final newPasswordController = TextEditingController();
+    final confirmPasswordController = TextEditingController();
 
-  return showDialog(
-    context: context,
-    builder: (context) {
-      return AlertDialog(
-        title: const Text('Changer le mot de passe'),
-        content: SingleChildScrollView(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              TextField(
-                controller: oldPasswordController,
-                obscureText: true,
-                decoration: const InputDecoration(
-                  labelText: 'Ancien mot de passe',
-                  hintText: 'Entrez votre mot de passe actuel',
-                ),
-              ),
-              const SizedBox(height: 10),
-              TextField(
-                controller: newPasswordController,
-                obscureText: true,
-                decoration: const InputDecoration(
-                  labelText: 'Nouveau mot de passe',
-                  hintText: 'Entrez votre nouveau mot de passe',
-                ),
-              ),
-              const SizedBox(height: 10),
-              TextField(
-                controller: confirmPasswordController,
-                obscureText: true,
-                decoration: const InputDecoration(
-                  labelText: 'Confirmer le nouveau mot de passe',
-                  hintText: 'Confirmez votre nouveau mot de passe',
-                ),
-              ),
-            ],
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Annuler'),
-          ),
-          TextButton(
-            onPressed: () async {
-              if (newPasswordController.text != confirmPasswordController.text) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text('Les mots de passe ne correspondent pas'),
+    return showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('Changer le mot de passe'),
+          content: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                TextField(
+                  controller: oldPasswordController,
+                  obscureText: true,
+                  decoration: const InputDecoration(
+                    labelText: 'Ancien mot de passe',
+                    hintText: 'Entrez votre mot de passe actuel',
                   ),
-                );
-                return;
-              }
-
-              if (newPasswordController.text.length < 6) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text(
-                      'Le mot de passe doit contenir au moins 6 caractères',
+                ),
+                const SizedBox(height: 10),
+                TextField(
+                  controller: newPasswordController,
+                  obscureText: true,
+                  decoration: const InputDecoration(
+                    labelText: 'Nouveau mot de passe',
+                    hintText: 'Entrez votre nouveau mot de passe',
+                  ),
+                ),
+                const SizedBox(height: 10),
+                TextField(
+                  controller: confirmPasswordController,
+                  obscureText: true,
+                  decoration: const InputDecoration(
+                    labelText: 'Confirmer le nouveau mot de passe',
+                    hintText: 'Confirmez votre nouveau mot de passe',
+                  ),
+                ),
+              ],
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Annuler'),
+            ),
+            TextButton(
+              onPressed: () async {
+                if (newPasswordController.text != confirmPasswordController.text) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Les mots de passe ne correspondent pas'),
                     ),
-                  ),
-                );
-                return;
-              }
+                  );
+                  return;
+                }
 
-              try {
-                await authService.changePassword(
-                  currentPassword: oldPasswordController.text,
-                  newPassword: newPasswordController.text,
-                );
-                Navigator.pop(context);
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text('Mot de passe changé avec succès'),
-                  ),
-                );
-              } catch (e) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text(
-                      e.toString().contains('wrong-password')
-                          ? 'Mot de passe actuel incorrect'
-                          : 'Erreur: ${e.toString()}',
+                if (newPasswordController.text.length < 6) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text(
+                        'Le mot de passe doit contenir au moins 6 caractères',
+                      ),
                     ),
-                  ),
-                );
-              }
-            },
-            child: const Text('Enregistrer'),
-          ),
-        ],
-      );
-    },
-  );
-}
+                  );
+                  return;
+                }
+
+                try {
+                  await authService.changePassword(
+                    currentPassword: oldPasswordController.text,
+                    newPassword: newPasswordController.text,
+                  );
+                  Navigator.pop(context);
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Mot de passe changé avec succès'),
+                    ),
+                  );
+                } catch (e) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text(
+                        e.toString().contains('wrong-password')
+                            ? 'Mot de passe actuel incorrect'
+                            : 'Erreur: ${e.toString()}',
+                      ),
+                    ),
+                  );
+                }
+              },
+              child: const Text('Enregistrer'),
+            ),
+          ],
+        );
+      },
+    );
+  }
 
   Future<void> _showLogoutConfirmation(
     BuildContext context,
@@ -597,69 +533,6 @@ Future<void> _showPasswordChangeDialog(
               },
               child: const Text(
                 'Déconnexion',
-                style: TextStyle(color: Colors.red),
-              ),
-            ),
-          ],
-        );
-      },
-    );
-  }
-
-  Future<void> _showDeleteAccountDialog(
-    BuildContext context,
-    AuthService authService,
-  ) async {
-    final passwordController = TextEditingController();
-
-    return showDialog(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          title: const Text('Supprimer le compte'),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              const Text(
-                'Cette action est irréversible. Toutes vos données seront perdues.',
-              ),
-              const SizedBox(height: 16),
-              TextField(
-                controller: passwordController,
-                obscureText: true,
-                decoration: const InputDecoration(
-                  labelText: 'Mot de passe',
-                  hintText: 'Entrez votre mot de passe pour confirmer',
-                ),
-              ),
-            ],
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text('Annuler'),
-            ),
-            TextButton(
-              onPressed: () async {
-                try {
-                  final user = authService.currentUser;
-                  if (user != null && user.email != null) {
-                    final credential = EmailAuthProvider.credential(
-                      email: user.email!,
-                      password: passwordController.text,
-                    );
-                    await user.reauthenticateWithCredential(credential);
-                    await authService.deleteAccount();
-                    Navigator.pushReplacementNamed(context, '/auth');
-                  }
-                } catch (e) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text('Erreur: ${e.toString()}')),
-                  );
-                }
-              },
-              child: const Text(
-                'Supprimer',
                 style: TextStyle(color: Colors.red),
               ),
             ),
